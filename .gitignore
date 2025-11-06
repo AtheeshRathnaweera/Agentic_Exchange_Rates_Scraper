@@ -207,3 +207,6 @@ marimo/_lsp/
 __marimo__/
 
 nltk_data/
+
+# Directory which stores notes related to the project.
+.notes
