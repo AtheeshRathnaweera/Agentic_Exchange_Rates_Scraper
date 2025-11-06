@@ -1,0 +1,37 @@
+scrape_targets:
+  - name: commercial_bank
+    url: "https://www.combank.lk/rates-tariff#exchange-rates"
+    tag: commercial
+  - name: sampath_bank
+    url: "https://www.sampath.lk/api/exchange-rates"
+    tag: sampath
+  - name: national_savings_bank
+    url: "https://www.nsb.lk/rates-tarriffs/exchange-rates/"
+    tag: nsb
+  - name: bank_of_ceylon
+    url: "https://www.boc.lk/rates-tariff"
+    tag: boc
+  - name: nations_trust_bank
+    url: "https://www.nationstrust.com/foreign-exchange-rates"
+    tag: ntb
+  - name: hnb_bank
+    url: "https://venus.hnb.lk/api/get_exchange_rates_contents_web"
+    tag: hnb
+  - name: dfcc_bank
+    url: "https://www.dfcc.lk/exchange-rates/"
+    tag: dfcc
+  - name: peoples_bank
+    url: "https://www.peoplesbank.lk/exchange-rates/"
+    tag: peoples
+  - name: seylan_bank
+    url: "https://www.seylan.lk/exchange-rates"
+    tag: seylan
+  # - name: pan_asia_bank
+  #   url: "https://www.pabcbank.com/treasury/exchange-rate/"
+  #   tag: pab
+  # - name: union_bank
+  #   url: "https://www.unionb.com/exchange-rates/"
+  #   tag: union
+  # - name: standard_charted_bank
+  #   url: "https://av.sc.com/lk/content/docs/lk-exchange-rates.pdf"
+  #   tag: standard_charted
