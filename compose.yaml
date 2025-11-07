@@ -25,7 +25,6 @@ services:
     volumes:
       - .:/app
     environment:
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
       GROQ_API_KEY: ${GROQ_API_KEY}
       DB_HOST: pgvector
       DB_PORT: 5432
