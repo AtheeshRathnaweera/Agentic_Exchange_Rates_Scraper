@@ -14,12 +14,12 @@ OS_CONFIG_PATH = str(Path(__file__).parent.joinpath("config.yaml"))
 
 # web_agent = get_web_agent(model_id="gpt-5")
 # agno_assist = get_agno_assist(model_id="gpt-5")
-core_agent = get_core_agent(model_id="llama-3.1-8b-instant")
+core_agent = get_core_agent(model_id="openai/gpt-oss-120b", debug_mode=True)
 # scrape_rates_workflow = scrape_rates.workflow.get_scrape_rates_workflow()
 
 # Create the AgentOS
 agent_os = AgentOS(
-    os_id="agentos-demo",
+    os_id="lkexrates-os",
     # agents=[web_agent, agno_assist],
     agents=[core_agent],
     # Configuration for the AgentOS
@@ -44,12 +44,4 @@ async def run_scraper(request: Request):
 
 
 if __name__ == "__main__":
-    # Add knowledge to Agno Assist agent
-    # asyncio.run(
-    #     agno_assist.knowledge.add_content_async(  # type: ignore
-    #         name="Agno Docs",
-    #         url="https://docs.agno.com/llms-full.txt",
-    #     )
-    # )
-    # Simple run to generate and record a session
     agent_os.serve(app="main:app", reload=True)
