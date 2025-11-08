@@ -21,7 +21,6 @@ dependencies = [
   "beautifulsoup4",
   "html5lib",
   "alembic",
-  "python-dotenv",
 ]
 
 [project.optional-dependencies]
