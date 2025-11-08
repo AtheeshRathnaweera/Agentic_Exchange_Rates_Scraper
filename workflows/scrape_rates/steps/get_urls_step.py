@@ -1,4 +1,4 @@
-from agno.workflow import StepInput, StepOutput
+from agno.workflow import StepOutput
 import yaml
 
 from app.models.scrape_target import ScrapeTarget
@@ -6,8 +6,11 @@ from app.models.scrape_target import ScrapeTarget
 CONFIG_FILE_PATH = "configs/scrape_config.yaml"
 
 
-def get_urls_step(step_input: StepInput) -> StepOutput:
-    print(f"Scrape Rates: Get Urls step started: {step_input.input}")
+def get_urls_step() -> StepOutput:
+    """
+    Loads scraping target URLs from the configuration file and returns them as ScrapeTarget objects.
+    """
+
     with open(CONFIG_FILE_PATH, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
 

@@ -1,7 +1,13 @@
 import re
+from typing import List
+from agno.agent import RunOutput
 from agno.workflow import StepInput, StepOutput
 from bs4 import BeautifulSoup, Comment
 import httpx
+from agents import get_core_agent
+from app.models import ExchangeRate, ScrapeTarget
+
+core_agent = get_core_agent(debug_mode=True)
 
 
 def pre_process_html(html: str) -> str:
@@ -11,15 +17,17 @@ def pre_process_html(html: str) -> str:
     Returns a list of HTML snippets for each relevant table + context.
     """
     if keywords is None:
+        # Only match strong multi-word terms to avoid false positives
         keywords = [
             "exchange rate",
             "exchange rates",
             "currency exchange",
-            "foreign currency",
             "telegraphic transfer",
             "telegraphic transfers",
             "tt buying",
             "tt selling",
+            "buying rate",
+            "selling rate",
         ]
 
     soup = BeautifulSoup(html, "html5lib")
@@ -30,6 +38,7 @@ def pre_process_html(html: str) -> str:
 
     # Remove all attributes
     for tag in soup.find_all(True):
+        # tag.attrs = {}
         if "class" in tag.attrs:
             del tag.attrs["class"]
         if "style" in tag.attrs:
@@ -54,7 +63,7 @@ def pre_process_html(html: str) -> str:
             parent_section = tag.find_parent(["div", "section", "body"]) or tag
             # Include all tables inside this parent
             for table in parent_section.find_all("table"):
-                # Keep table only if it contains the keywords
+                # --- New check: keep table only if it contains the keywords ---
                 table_text = table.get_text(" ", strip=True).lower()
                 if not any(word in table_text for word in keywords):
                     continue
@@ -84,9 +93,9 @@ def pre_process_html(html: str) -> str:
     return minified_html
 
 
-async def main_step(step_input: StepInput) -> StepOutput:
-    targets = step_input.previous_step_content
-    results = []
+async def extract_rates_step(step_input: StepInput) -> StepOutput:
+    targets: List[ScrapeTarget] = step_input.previous_step_content
+    results: List[ExchangeRate] = []
 
     if targets is None:
         return StepOutput(content="No targets to process")
@@ -101,24 +110,40 @@ async def main_step(step_input: StepInput) -> StepOutput:
                 }
                 resp = await client.get(target.url, headers=headers)
                 resp.raise_for_status()
-
                 content_type = resp.headers.get("Content-Type", "")
+                agent_input = ""
+
                 if "application/json" in content_type:
                     data = resp.json()
-                    results.append({"bank": target.name, "type": "json", "data": data})
                     print(f"Main step: result for {target.name} -> {data}")
+                    agent_input = (
+                        f"This is the raw JSON content from {target.name} Sri Lanka.\n"
+                        f"System tag: {target.tag}\n"
+                        f"{data}"
+                    )
                 else:
                     html = resp.text
                     filtered_html = pre_process_html(html)
-                    results.append(
-                        {"bank": target.name, "type": "html", "data": filtered_html}
-                    )  # trim preview for debugging
                     print(
                         f"Main step: result for {target.name} -> {filtered_html[:500]}"
                     )
-                
+                    agent_input = (
+                        f"This is the raw HTML content from {target.name} Sri Lanka.\n"
+                        f"System tag: {target.tag}\n"
+                        f"{filtered_html}"
+                    )
+
+                try:
+                    response: RunOutput = core_agent.run(input=agent_input)
+                    print("Metrics: ", response.metrics)
+                    results.append(response.content)
+                except Exception as e:
+                    print(f"❌ Error: {e}")
+                finally:
+                    print("Main: run scraper completed")
+
                 # call the agent to extract exchange rates
             except Exception as e:
                 print(f"Error fetching {target.name}: {e}")
 
-    return StepOutput(content=f"Processed {len(targets)} sites")
+    return StepOutput(content=results)
