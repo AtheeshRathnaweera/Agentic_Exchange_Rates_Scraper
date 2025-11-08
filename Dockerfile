@@ -3,11 +3,11 @@ FROM agnohq/python:3.12 AS base
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    UV_CACHE_DIR=/tmp/uv-cache \
-    UV_HTTP_TIMEOUT=120
+  PYTHONDONTWRITEBYTECODE=1 \
+  PIP_NO_CACHE_DIR=1 \
+  PIP_DISABLE_PIP_VERSION_CHECK=1 \
+  UV_CACHE_DIR=/tmp/uv-cache \
+  UV_HTTP_TIMEOUT=120
 
 # Create non-root user
 ARG USER=app
@@ -16,7 +16,7 @@ ARG GID=61000
 ARG APP_DIR=/app
 
 RUN groupadd -g ${GID} ${USER} \
-    && useradd -g ${GID} -u ${UID} -ms /bin/bash -d ${APP_DIR} ${USER}
+  && useradd -g ${GID} -u ${UID} -ms /bin/bash -d ${APP_DIR} ${USER}
 
 # Development stage for dependencies
 FROM base AS deps
@@ -28,7 +28,7 @@ COPY requirements.txt pyproject.toml ./
 
 # Install dependencies with uv for faster installation
 RUN uv pip sync requirements.txt --system \
-    && uv cache clean
+  && uv cache clean
 
 # Production stage
 FROM base AS production
@@ -44,7 +44,7 @@ COPY --chown=${USER}:${USER} . .
 
 # Create necessary directories and set permissions
 RUN mkdir -p /tmp/uv-cache /var/log/app \
-    && chown -R ${USER}:${USER} ${APP_DIR} /tmp/uv-cache /var/log/app
+  && chown -R ${USER}:${USER} ${APP_DIR} /tmp/uv-cache /var/log/app
 
 # Switch to non-root user
 USER ${USER}
