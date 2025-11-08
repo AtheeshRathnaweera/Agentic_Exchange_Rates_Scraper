@@ -6,6 +6,7 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
     environment:
       POSTGRES_USER: ${DB_USER:-ai}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-ai}
@@ -30,7 +31,7 @@ services:
       DB_PORT: 5432
       DB_USER: ${DB_USER:-ai}
       DB_PASS: ${DB_PASSWORD:-ai}
-      DB_DATABASE: ${DB_NAME:-ai}
+      DB_NAME: ${DB_NAME:-ai}
       WAIT_FOR_DB: "True"
       PRINT_ENV_ON_LOAD: "True"
     networks:
