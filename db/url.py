@@ -7,12 +7,12 @@ def get_db_url() -> str:
     db_pass = getenv("DB_PASS")
     db_host = getenv("DB_HOST")
     db_port = getenv("DB_PORT")
-    db_database = getenv("DB_DATABASE")
+    db_name = getenv("DB_NAME")
     return "{}://{}{}@{}:{}/{}".format(
         db_driver,
         db_user,
         f":{db_pass}" if db_pass else "",
         db_host,
         db_port,
-        db_database,
+        db_name,
     )
