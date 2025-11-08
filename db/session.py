@@ -7,7 +7,6 @@ from db.url import get_db_url
 
 # Create SQLAlchemy Engine using a database URL
 db_url: str = get_db_url()
-print(f"session: db url: {db_url}")
 db_engine: Engine = create_engine(db_url, pool_pre_ping=True)
 
 # Create a SessionLocal class
