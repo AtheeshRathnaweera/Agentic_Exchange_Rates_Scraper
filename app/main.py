@@ -6,22 +6,17 @@ from agno.run.workflow import (
 )
 from agno.utils.pprint import pprint_run_response
 
-from agents import get_core_agent
+from agents import get_scraping_agent
 from workflows import get_scrape_rates_workflow
 
 OS_CONFIG_PATH = "configs/agent_os_config.yaml"
 
-# web_agent = get_web_agent(model_id="gpt-5")
-# agno_assist = get_agno_assist(model_id="gpt-5")
-core_agent = get_core_agent(debug_mode=True)
-# scrape_rates_workflow = scrape_rates.workflow.get_scrape_rates_workflow()
+scraping_agent = get_scraping_agent(debug_mode=True)
 
-# Create the AgentOS
+# Configuration for the AgentOS
 agent_os = AgentOS(
     os_id="lkexrates-os",
-    # agents=[web_agent, agno_assist],
-    agents=[core_agent],
-    # Configuration for the AgentOS
+    agents=[scraping_agent],
     config=OS_CONFIG_PATH,
 )
 app = agent_os.get_app()
@@ -29,15 +24,19 @@ app = agent_os.get_app()
 
 @app.post("/run-scraper")
 async def run_scraper(request: Request):
+    """
+    Endpoint to trigger the exchange rates scraping workflow.
+    """
     body = await request.body()
-    print(f"Main: run scraper started: {body.decode('utf-8')}")
+    print(f"[run_scraper] Received request body: {body.decode('utf-8')}")
     try:
         response: WorkflowRunOutput = await get_scrape_rates_workflow().arun()
+        print("[run_scraper] Scraping workflow completed. Printing response:")
         pprint_run_response(response, markdown=True)
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"[run_scraper] ❌ Error occurred: {e}")
     finally:
-        print("Main: run scraper completed")
+        print("[run_scraper] Scraper run finished.")
 
 
 if __name__ == "__main__":

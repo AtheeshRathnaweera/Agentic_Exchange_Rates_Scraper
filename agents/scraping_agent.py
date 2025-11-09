@@ -5,12 +5,12 @@ from agents.fewshots import html_examples, json_examples
 from app.models import ExchangeRate
 
 
-def get_core_agent(
+def get_scraping_agent(
     model_id: str = "openai/gpt-oss-120b",
     debug_mode: bool = False,
 ) -> Agent:
     """
-    Creates and returns the core agent for extracting exchange rate data from Sri Lankan
+    Creates and returns the scraping agent for extracting exchange rate data from Sri Lankan
     bank websites.
 
     Args:
@@ -22,8 +22,8 @@ def get_core_agent(
         Agent: Configured agent instance for extracting and structuring exchange rate data.
     """
     return Agent(
-        id="core-agent",
-        name="Core Agent",
+        id="scraping-agent",
+        name="Scraping Agent",
         model=Groq(id=model_id),
         additional_input=[html_examples, json_examples],
         description="Extracts structured exchange rate data from Sri Lankan bank HTML or "

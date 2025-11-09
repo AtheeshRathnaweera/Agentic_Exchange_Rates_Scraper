@@ -1,13 +1,14 @@
+import asyncio
 import re
 from typing import List
 from agno.agent import RunOutput
 from agno.workflow import StepInput, StepOutput
 from bs4 import BeautifulSoup, Comment
 import httpx
-from agents import get_core_agent
+from agents import get_scraping_agent
 from app.models import ExchangeRate, ScrapeTarget
 
-core_agent = get_core_agent(debug_mode=True)
+scraping_agent = get_scraping_agent(debug_mode=True)
 
 
 def pre_process_html(html: str) -> str:
@@ -16,19 +17,18 @@ def pre_process_html(html: str) -> str:
 
     Returns a list of HTML snippets for each relevant table + context.
     """
-    if keywords is None:
-        # Only match strong multi-word terms to avoid false positives
-        keywords = [
-            "exchange rate",
-            "exchange rates",
-            "currency exchange",
-            "telegraphic transfer",
-            "telegraphic transfers",
-            "tt buying",
-            "tt selling",
-            "buying rate",
-            "selling rate",
-        ]
+    print("[pre_process_html] Starting HTML preprocessing...")
+    keywords = [
+        "exchange rate",
+        "exchange rates",
+        "currency exchange",
+        "telegraphic transfer",
+        "telegraphic transfers",
+        "tt buying",
+        "tt selling",
+        "buying rate",
+        "selling rate",
+    ]
 
     soup = BeautifulSoup(html, "html5lib")
 
@@ -90,18 +90,28 @@ def pre_process_html(html: str) -> str:
     minified_html = re.sub(r">\s+<", "><", str(clean_soup))
     minified_html = re.sub(r"\s+", " ", minified_html).strip()
 
+    print("[pre_process_html] Preprocessing complete.")
     return minified_html
 
 
 async def extract_rates_step(step_input: StepInput) -> StepOutput:
+    """
+    Extracts exchange rates from a list of scrape targets.
+    """
+    print("[extract_rates_step] Starting extraction step...")
     targets: List[ScrapeTarget] = step_input.previous_step_content
     results: List[ExchangeRate] = []
 
     if targets is None:
+        print("[extract_rates_step] No targets to process. Exiting.")
         return StepOutput(content="No targets to process")
 
+    print(f"[extract_rates_step] Processing {len(targets)} targets.")
     async with httpx.AsyncClient(timeout=30) as client:
         for target in targets:
+            print(
+                f"[extract_rates_step] Fetching URL: {target.url} (name: {target.name})"
+            )
             try:
                 headers = {
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
@@ -115,7 +125,9 @@ async def extract_rates_step(step_input: StepInput) -> StepOutput:
 
                 if "application/json" in content_type:
                     data = resp.json()
-                    print(f"Main step: result for {target.name} -> {data}")
+                    print(
+                        f"[extract_rates_step] JSON content for {target.name}: {str(data)[:100]}..."
+                    )
                     agent_input = (
                         f"This is the raw JSON content from {target.name} Sri Lanka.\n"
                         f"System tag: {target.tag}\n"
@@ -123,9 +135,12 @@ async def extract_rates_step(step_input: StepInput) -> StepOutput:
                     )
                 else:
                     html = resp.text
+                    print(
+                        f"[extract_rates_step] HTML content for {target.name} received. Preprocessing..."
+                    )
                     filtered_html = pre_process_html(html)
                     print(
-                        f"Main step: result for {target.name} -> {filtered_html[:500]}"
+                        f"[extract_rates_step] Filtered HTML for {target.name}: {filtered_html[:500]}"
                     )
                     agent_input = (
                         f"This is the raw HTML content from {target.name} Sri Lanka.\n"
@@ -134,16 +149,30 @@ async def extract_rates_step(step_input: StepInput) -> StepOutput:
                     )
 
                 try:
-                    response: RunOutput = core_agent.run(input=agent_input)
-                    print("Metrics: ", response.metrics)
+                    print(
+                        f"[extract_rates_step] Running scraping agent for {target.name}..."
+                    )
+                    response: RunOutput = scraping_agent.run(input=agent_input)
+                    print(
+                        f"[extract_rates_step] Agent metrics for {target.name}: {response.metrics}"
+                    )
                     results.append(response.content)
+                    print(
+                        "\n[extract_rates_step] Waiting 01 minute before next call due to Groq API rate limit...\n"
+                    )
+                    await asyncio.sleep(60)  # Wait 1 minute before next call
                 except Exception as e:
-                    print(f"❌ Error: {e}")
+                    print(
+                        f"[extract_rates_step] ❌ Error running agent for {target.name}: {e}"
+                    )
                 finally:
-                    print("Main: run scraper completed")
-
-                # call the agent to extract exchange rates
+                    print(
+                        f"[extract_rates_step] Main: run scraper completed for {target.name}"
+                    )
             except Exception as e:
-                print(f"Error fetching {target.name}: {e}")
+                print(f"[extract_rates_step] Error fetching {target.name}: {e}")
 
+    print(
+        f"[extract_rates_step] Extraction step complete. {len(results)} results collected."
+    )
     return StepOutput(content=results)

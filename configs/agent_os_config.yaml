@@ -1,6 +1,6 @@
 chat:
   quick_prompts:
-    core-agent:
+    scraping-agent:
       - "What can you do?"
       - "Extract exchange rates from this HTML or JSON and return structured data in a table."
       - "Extract exchange rates from this HTML or JSON and return structured data as a JSON."
