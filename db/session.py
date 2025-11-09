@@ -11,7 +11,7 @@ db_engine: Engine = create_engine(db_url, pool_pre_ping=True)
 
 # Create a SessionLocal class
 SessionLocal: sessionmaker[Session] = sessionmaker(
-    autocommit=False, autoflush=False, bind=db_engine
+    autocommit=False, autoflush=False, expire_on_commit=False, bind=db_engine
 )
 
 
