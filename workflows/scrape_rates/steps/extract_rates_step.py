@@ -160,7 +160,12 @@ async def extract_rates_step(step_input: StepInput) -> StepOutput:
                     print(
                         "\n[extract_rates_step] Waiting 01 minute before next call due to Groq API rate limit...\n"
                     )
-                    await asyncio.sleep(60)  # Wait 1 minute before next call
+                    # Only wait if there are more targets left to process
+                    if target != targets[-1]:
+                        print(
+                            "[extract_rates_step] Waiting 01 minute before next call due to Groq API rate limit..."
+                        )
+                        await asyncio.sleep(60)
                 except Exception as e:
                     print(
                         f"[extract_rates_step] ❌ Error running agent for {target.name}: {e}"
