@@ -1,3 +1,4 @@
+import uuid
 from fastapi import Request
 
 from agno.os import AgentOS
@@ -27,10 +28,15 @@ async def run_scraper(request: Request):
     """
     Endpoint to trigger the exchange rates scraping workflow.
     """
+    correlation_id = str(uuid.uuid4())
     body = await request.body()
-    print(f"[run_scraper] Received request body: {body.decode('utf-8')}")
+    print(
+        f"[run_scraper] Received request body: {body.decode('utf-8')} Using correlation_id: {correlation_id}"
+    )
     try:
-        response: WorkflowRunOutput = await get_scrape_rates_workflow().arun()
+        response: WorkflowRunOutput = await get_scrape_rates_workflow(
+            correlation_id=correlation_id
+        ).arun()
         print("[run_scraper] Scraping workflow completed. Printing response:")
         pprint_run_response(response, markdown=True)
     except Exception as e:

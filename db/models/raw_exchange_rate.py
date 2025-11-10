@@ -33,4 +33,4 @@ class RawExchangeRate(Base):
     created_date = Column(
         TIMESTAMP, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
-    correlation_id = Column(String(100))
+    correlation_id = Column(String(100), nullable=False)
