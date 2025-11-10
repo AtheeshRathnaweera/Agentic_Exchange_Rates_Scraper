@@ -22,6 +22,7 @@ dependencies = [
   "html5lib",
   "alembic",
   "tenacity",
+  "colorlog"
 ]
 
 [project.optional-dependencies]
