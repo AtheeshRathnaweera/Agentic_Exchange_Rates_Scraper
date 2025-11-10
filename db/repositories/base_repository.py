@@ -2,7 +2,10 @@ from typing import Generic, TypeVar, Type, List, Dict, Any
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
+from utils import get_logger
+
 ModelType = TypeVar("ModelType")
+logger = get_logger(__name__)
 
 
 class BaseRepository(Generic[ModelType]):
@@ -30,7 +33,7 @@ class BaseRepository(Generic[ModelType]):
         """
         return self.db.query(self.model).filter(self.model.id == obj_id).first()
 
-    def get_all(self) -> list[ModelType]:
+    def get_all(self) -> List[ModelType]:
         """
         Retrieve all objects of the model type.
 
@@ -75,17 +78,16 @@ class BaseRepository(Generic[ModelType]):
             return []
 
         try:
-            print(f"[bulk_create] Adding {len(objects)} objects to session.")
+            logger.info("Adding %s objects to session.", len(objects))
             self.db.add_all(objects)
             if commit:
-                print("[bulk_create] Committing transaction.")
                 self.db.commit()
                 for obj in objects:
                     self.db.refresh(obj)
-            print("[bulk_create] Bulk creation successful.")
+            logger.info("Bulk creation successful.")
             return objects
         except SQLAlchemyError as e:
-            print(f"[bulk_create] SQLAlchemyError occurred: {e}")
+            logger.info("SQLAlchemyError occurred: %s", e)
             self.db.rollback()
             raise
 
