@@ -1,9 +1,8 @@
-from fastapi import Request
 from agno.run.workflow import WorkflowRunOutput
 from agno.utils.pprint import pprint_run_response
 
 from db.repositories import RawExchangeRateRepository
-from app.api.dtos import GenericResponse, RawExchangeRateDTO
+from app.api.dtos import RawExchangeRateDTO
 from utils import get_logger
 from workflows import get_scrape_rates_workflow
 
@@ -17,7 +16,7 @@ class ExchangeRatesService:
         self.correlation_id = correlation_id
         self.repo = RawExchangeRateRepository(db=db) if db is not None else None
 
-    async def run_scraper(self, request: Request):
+    async def run_scraper(self, body: bytes):
         """
         Run the scraping workflow for exchange rates.
 
@@ -27,8 +26,6 @@ class ExchangeRatesService:
         Returns:
             GenericResponse: A generic response indicating success or error.
         """
-        # pylint: disable=no-member
-        body = await request.body()
         logger.info(
             "Received request body: %s Using correlation_id: %s",
             body.decode("utf-8"),
@@ -39,15 +36,13 @@ class ExchangeRatesService:
                 correlation_id=self.correlation_id
             ).arun()
             logger.info(
-                "Scraping workflow completed. Printing response:\n%s",
+                "Scraping workflow completed:\n%s",
                 pprint_run_response(response, markdown=True),
             )
-            return GenericResponse(status="success", data=None)
         except Exception as e:
-            logger.error("❌ Error occurred: %s", e)
-            return GenericResponse(status="error", message=str(e))
+            logger.exception("[%s] Error in scraper: %s", self.correlation_id, e)
         finally:
-            logger.info("Scraper run finished.")
+            logger.info("[%s] Scraper run finished.", self.correlation_id)
 
     def get_all(self):
         """
