@@ -46,3 +46,19 @@ class ExchangeRatesController:
         Get all exchange rates.
         """
         return ExchangeRatesService(db=db, correlation_id=str(uuid.uuid4())).get_all()
+
+    @router.get("/date/{date}", response_model=List[RawExchangeRateDTO])
+    # pylint: disable=no-self-argument
+    async def get_all_by_date(date: str, db=Depends(get_db)):
+        """
+        Get all exchange rates by date.
+        """
+        return ExchangeRatesService(db=db).get_all_by_date(date)
+
+    @router.get("/year-month/{date}", response_model=List[RawExchangeRateDTO])
+    # pylint: disable=no-self-argument
+    async def get_all_by_month(year_month: str, db=Depends(get_db)):
+        """
+        Get all exchange rates by year and the month.
+        """
+        return ExchangeRatesService(db=db).get_all_by_year_month(year_month)
