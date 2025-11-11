@@ -54,4 +54,3 @@ EXPOSE 8000
 
 # Use exec form for better signal handling
 ENTRYPOINT ["/app/scripts/entrypoint.sh"]
-CMD ["chill"]

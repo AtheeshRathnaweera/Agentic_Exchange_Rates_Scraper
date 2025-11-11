@@ -26,15 +26,5 @@ alembic upgrade head || { echo "Alembic migration failed"; exit 1; }
 ############################################################################
 # Start App
 ############################################################################
-
-case "$1" in
-  chill)
-    ;;
-  *)
-    echo "Running: $@"
-    exec "$@"
-    ;;
-esac
-
-echo ">>> Hello World!"
-while true; do sleep 18000; done
+echo ">>> Starting API..."
+exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
