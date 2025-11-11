@@ -1,7 +1,9 @@
+from fastapi import FastAPI
 from agno.os import AgentOS
 
 from agents import get_scraping_agent
 from app.api.controllers import ExchangeRatesController
+from utils import build_openapi
 
 OS_CONFIG_PATH = "configs/agent_os_config.yaml"
 
@@ -13,10 +15,20 @@ agent_os = AgentOS(
     agents=[scraping_agent],
     config=OS_CONFIG_PATH,
 )
-app = agent_os.get_app()
 
+# Public-facing API
+app = FastAPI(
+    title="Exchange API",
+    version="1.0.0",
+    description="Handles exchange rate scraping and retrieval",
+)
+
+# Public routes
 app.include_router(ExchangeRatesController.router)
 
+# Mount Agno’s internal OS separately
+app.mount("/agentOS", agent_os.get_app())
 
-if __name__ == "__main__":
-    agent_os.serve(app="main:app", reload=True)
+# API docs -> http://localhost:8000/docs#
+# AgentOS docs -> http://localhost:8000/agentOS/docs#
+build_openapi(app, allowed_prefixes="*")
