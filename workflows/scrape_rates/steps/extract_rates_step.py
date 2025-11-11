@@ -157,9 +157,6 @@ async def extract_rates_step(step_input: StepInput) -> StepOutput:
                         f"[extract_rates_step] Agent metrics for {target.name}: {response.metrics}"
                     )
                     results.append(response.content)
-                    print(
-                        "\n[extract_rates_step] Waiting 01 minute before next call due to Groq API rate limit...\n"
-                    )
                     # Only wait if there are more targets left to process
                     if target != targets[-1]:
                         print(
