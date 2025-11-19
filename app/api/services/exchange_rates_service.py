@@ -1,8 +1,12 @@
+from typing import List
 from agno.run.workflow import WorkflowRunOutput
 from agno.utils.pprint import pprint_run_response
+from agno.run.base import RunStatus
 
-from db.repositories import RawExchangeRateRepository
-from app.api.dtos import RawExchangeRateDTO
+from app.models import ScraperJobStatus
+from app.api.dtos import RawExchangeRateDTO, ScraperJobDTO
+from db.models import ScraperJob
+from db.repositories import RawExchangeRateRepository, ScraperJobRepository
 from utils import get_logger
 from workflows import get_scrape_rates_workflow
 
@@ -11,12 +15,22 @@ logger = get_logger(__name__)
 
 class ExchangeRatesService:
 
-    def __init__(self, db=None, correlation_id: str | None = None):
-        self.db = db
-        self.correlation_id = correlation_id
-        self.repo = RawExchangeRateRepository(db=db) if db is not None else None
+    def __init__(
+        self,
+        repo: RawExchangeRateRepository = None,
+        job_repo: ScraperJobRepository = None,
+        correlation_id: str | None = None,
+    ):
+        self._repo = repo
+        self._job_repo = job_repo
+        self._correlation_id = correlation_id
 
-    async def run_scraper(self, body: bytes):
+    @property
+    def correlation_id(self) -> str:
+        """Get the correlation ID for this service instance."""
+        return self._correlation_id
+
+    async def run_scraper(self, body: bytes) -> None:
         """
         Run the scraping workflow for exchange rates.
 
@@ -29,37 +43,67 @@ class ExchangeRatesService:
         logger.info(
             "Received request body: %s Using correlation_id: %s",
             body.decode("utf-8"),
-            self.correlation_id,
+            self._correlation_id,
         )
         try:
+            # Update scraper job status to RUNNING
+            updated_job = self._job_repo.update_status_by_correlation_id(
+                correlation_id=self._correlation_id, status=ScraperJobStatus.RUNNING
+            )
+
+            if updated_job is None:
+                logger.warning(
+                    "[%s] Failed to update job status to RUNNING - job not found",
+                    self._correlation_id,
+                )
+            else:
+                logger.info("[%s] Job status updated to RUNNING", self._correlation_id)
+
             response: WorkflowRunOutput = await get_scrape_rates_workflow(
-                correlation_id=self.correlation_id
+                correlation_id=self._correlation_id
             ).arun()
+
+            logger.info(
+                "Scraping workflow current status:\n%s",
+                response.status,
+            )
+
+            current_status = (
+                ScraperJobStatus.SUCCESS
+                if response.status == RunStatus.completed
+                else ScraperJobStatus.ERROR
+            )
+            self._job_repo.update_status_by_correlation_id(
+                correlation_id=self._correlation_id, status=current_status
+            )
+
             logger.info(
                 "Scraping workflow completed:\n%s",
                 pprint_run_response(response, markdown=True),
             )
         except Exception as e:
-            logger.exception("[%s] Error in scraper: %s", self.correlation_id, e)
-        finally:
-            logger.info("[%s] Scraper run finished.", self.correlation_id)
+            self._job_repo.update_status_by_correlation_id(
+                correlation_id=self._correlation_id, status=ScraperJobStatus.ERROR
+            )
+            logger.exception("[%s] Error in scraper: %s", self._correlation_id, e)
 
-    def get_all(self):
+    def get_all(self) -> List[RawExchangeRateDTO]:
         """
         Retrieve all exchange rates from the database and convert them to DTOs.
-
-        Args:
-            db: Database session instance.
 
         Returns:
             List[RawExchangeRateDTO]: List of exchange rate DTOs.
         """
-        data = self.repo.get_all()
-        return [RawExchangeRateDTO.model_validate(item) for item in data]
+        data = self._repo.get_all()
+        return [
+            RawExchangeRateDTO.model_validate(item, from_attributes=True)
+            for item in data
+        ]
 
-    def get_all_by_date(self, date: str):
+    def get_all_by_date(self, date: str) -> List[RawExchangeRateDTO]:
         """
-        Retrieve all exchange rates from the database for a specific created date and convert them to DTOs.
+        Retrieve all exchange rates from the database for a specific created
+        date and convert them to DTOs.
 
         Args:
             date (str): The date to filter exchange rates (expected format 'YYYY-MM-DD').
@@ -67,12 +111,16 @@ class ExchangeRatesService:
         Returns:
             List[RawExchangeRateDTO]: List of exchange rate DTOs matching the specified date.
         """
-        data = self.repo.get_by_created_date(date)
-        return [RawExchangeRateDTO.model_validate(item) for item in data]
+        data = self._repo.get_by_created_date(date)
+        return [
+            RawExchangeRateDTO.model_validate(item, from_attributes=True)
+            for item in data
+        ]
 
-    def get_all_by_year_month(self, year_month: str):
+    def get_all_by_year_month(self, year_month: str) -> List[RawExchangeRateDTO]:
         """
-        Retrieve all exchange rates from the database for a specific year and month convert them to DTOs.
+        Retrieve all exchange rates from the database for a specific year and
+        month convert them to DTOs.
 
         Args:
             year and month (str): The date to filter exchange rates (expected format 'YYYY-MM').
@@ -80,5 +128,17 @@ class ExchangeRatesService:
         Returns:
             List[RawExchangeRateDTO]: List of exchange rate DTOs matching the specified month.
         """
-        data = self.repo.get_by_created_year_month(year_month)
-        return [RawExchangeRateDTO.model_validate(item) for item in data]
+        data = self._repo.get_by_created_year_month(year_month)
+        return [
+            RawExchangeRateDTO.model_validate(item, from_attributes=True)
+            for item in data
+        ]
+
+    def add_scraper_job_status(self, status: ScraperJobStatus) -> ScraperJobDTO:
+        """
+        Create and save a new scraper job status entry.
+        """
+        logger.info("This is the correlation id: %s", self._correlation_id)
+        new_status = ScraperJob(correlation_id=self._correlation_id, status=status)
+        created_job = self._job_repo.create(new_status)
+        return ScraperJobDTO.model_validate(created_job, from_attributes=True)
