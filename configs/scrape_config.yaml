@@ -23,10 +23,11 @@ scrape_targets:
   - name: seylan_bank
     url: "https://www.seylan.lk/exchange-rates"
     tag: seylan
+  - name: dfcc_bank
+    url: "https://www.dfcc.lk/rates-and-tariff/exchange-rates"
+    tag: dfcc
 
-  # - name: dfcc_bank
-  #   url: "https://www.dfcc.lk/exchange-rates/"
-  #   tag: dfcc
+
   # - name: pan_asia_bank
   #   url: "https://www.pabcbank.com/treasury/exchange-rate/"
   #   tag: pab
