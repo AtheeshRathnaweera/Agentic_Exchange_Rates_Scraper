@@ -5,9 +5,7 @@ from workflows.scrape_rates.steps import (
     extract_rates_step,
     save_to_db_step,
 )
-
-MAX_RETRIES = 3
-RETRY_DELAY = 2
+from workflows.utils import wrap_executor
 
 
 def get_scrape_rates_workflow(correlation_id: str) -> Workflow:
@@ -20,9 +18,24 @@ def get_scrape_rates_workflow(correlation_id: str) -> Workflow:
     return Workflow(
         name="Scrape Rates Pipeline",
         steps=[
-            Step(name="Get Urls Step", executor=get_urls_step),
-            Step(name="Extract Rates Step", executor=extract_rates_step),
-            Step(name="Save to DB Step", executor=save_to_db_step),
+            Step(
+                name="Get Urls Step",
+                executor=wrap_executor(get_urls_step),
+                max_retries=3,
+                skip_on_failure=False,
+            ),
+            Step(
+                name="Extract Rates Step",
+                executor=wrap_executor(extract_rates_step),
+                max_retries=0,
+                skip_on_failure=False,
+            ),
+            Step(
+                name="Save to DB Step",
+                executor=wrap_executor(save_to_db_step),
+                max_retries=0,
+                skip_on_failure=False,
+            ),
         ],
         metadata={"correlation_id": correlation_id},
     )
