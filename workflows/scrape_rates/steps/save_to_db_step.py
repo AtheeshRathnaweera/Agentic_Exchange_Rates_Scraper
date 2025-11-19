@@ -1,13 +1,14 @@
 from typing import List
-
 from sqlalchemy.exc import SQLAlchemyError
 from tenacity import retry, stop_after_attempt, wait_exponential
-
 from agno.workflow import StepInput, StepOutput
+
+from app.api.factories.repositories import build_exchange_rates_repository
 from app.models import ExchangeRate
 from db.models import RawExchangeRate
-from db.repositories import RawExchangeRateRepository
-from db import get_db
+from utils import get_logger
+
+logger = get_logger(__name__)
 
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
@@ -16,18 +17,18 @@ def save_bulk_with_retry(repo, objs):
     Attempts to save a list of objects to the database using the provided repository.
     Retries up to 3 times with exponential backoff on failure.
     """
-    print(
-        f"[save_bulk_with_retry] Attempting to save {len(objs)} objects using {type(repo).__name__}..."
+    logger.info(
+        "Attempting to save %s objects using %s...", len(objs), type(repo).__name__
     )
     try:
         result = repo.save_bulk(objs)
-        print(f"[save_bulk_with_retry] Successfully saved {len(result)} objects.")
+        logger.info("Successfully saved %s objects.", len(result))
         return result
     except SQLAlchemyError as e:
-        print(f"[save_bulk_with_retry] Database error: {e}")
+        logger.info("Database error: %s", e)
         raise
     except Exception as e:
-        print(f"[save_bulk_with_retry] Unexpected error: {e}")
+        logger.info("Unexpected error: %s", e)
         raise
 
 
@@ -35,12 +36,10 @@ async def save_to_db_step(step_input: StepInput) -> StepOutput:
     """
     Async workflow step to save extracted exchange rates to the database.
     """
-    print("[save_to_db_step] Starting save to DB step...")
+    logger.info("Starting save to DB step...")
     input_data: List[ExchangeRate] = step_input.previous_step_content
     meatadata = step_input.workflow_session.metadata or {}
     correlation_id = meatadata.get("correlation_id")
-
-    print(f"[save_to_db_step] correlation_id: {correlation_id}")
 
     # Convert ExchangeRate objects to dicts for bulk save
     rates_data: List[RawExchangeRate] = []
@@ -69,15 +68,13 @@ async def save_to_db_step(step_input: StepInput) -> StepOutput:
                     correlation_id=correlation_id,
                 ),
             )
-    print(f"[save_to_db_step] Prepared {len(rates_data)} records for saving.")
+    logger.info("Prepared %s records for saving.", len(rates_data))
     try:
-        repo = RawExchangeRateRepository(db=next(get_db()))
-        print("[save_to_db_step] Repository initialized. Saving records...")
+        repo = build_exchange_rates_repository()
+        # repo = RawExchangeRateRepository(db=next(get_db()))
         saved_objs = save_bulk_with_retry(repo, rates_data)
-        print(
-            f"[save_to_db_step] Save operation completed. {len(saved_objs)} items saved."
-        )
+        logger.info("Save operation completed. %s items saved.", len(saved_objs))
         return StepOutput(content=f"{len(saved_objs)} items saved successfully")
     except Exception as e:
-        print(f"[save_to_db_step] Error saving to DB: {str(e)}")
-        return StepOutput(content=f"Error saving to DB: {str(e)}")
+        logger.error("Error saving to DB: %s", str(e), exc_info=True)
+        return StepOutput(content=f"Error saving to DB: {str(e)}", stop=True)
