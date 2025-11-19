@@ -4,7 +4,7 @@ from app.models import ScraperJobStatus
 from db.models import Base
 
 
-class ScraperJobs(Base):
+class ScraperJob(Base):
     """
     SQLAlchemy ORM model for the 'scraper_jobs' table.
     """
