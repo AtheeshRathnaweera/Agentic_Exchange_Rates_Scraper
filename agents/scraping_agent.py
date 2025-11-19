@@ -50,7 +50,7 @@ def get_scraping_agent(
             "(e.g., sampath_bank → Sampath Bank, hsbc_sri_lanka → HSBC Sri Lanka).",
         ],
         output_schema=ExchangeRate,
-        use_json_mode=True,
+        # use_json_mode=True,
         debug_mode=debug_mode,
         # Save metrics to the DB -> https://github.com/agno-agi/agno/blob/main/cookbook/db/postgres/postgres_for_agent.py
     )
