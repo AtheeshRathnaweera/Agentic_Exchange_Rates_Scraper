@@ -1,7 +1,8 @@
 from fastapi import Depends
 
+from db.repositories.raw_exchange_rate_repository import RawExchangeRateRepository
+from db.repositories.scraper_job_repository import ScraperJobRepository
 from db.session import get_db
-from db.repositories import RawExchangeRateRepository, ScraperJobRepository
 
 
 def get_exchange_rates_repository(db=Depends(get_db)) -> RawExchangeRateRepository:

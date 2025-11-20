@@ -9,13 +9,15 @@ Each factory manually initializes the required database session,
 ensuring the repository is fully configured for standalone use.
 """
 
-from db.repositories import RawExchangeRateRepository, ScraperJobRepository
+from db.repositories.raw_exchange_rate_repository import RawExchangeRateRepository
+from db.repositories.scraper_job_repository import ScraperJobRepository
 from db.session import get_db
 
 
 def build_exchange_rates_repository() -> RawExchangeRateRepository:
     db = next(get_db())
     return RawExchangeRateRepository(db)
+
 
 def build_scraper_job_repository() -> ScraperJobRepository:
     db = next(get_db())

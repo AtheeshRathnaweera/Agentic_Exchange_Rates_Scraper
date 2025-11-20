@@ -3,7 +3,8 @@ from fastapi.staticfiles import StaticFiles
 from agno.os import AgentOS
 
 from agents import get_scraping_agent
-from app.api.controllers import ExchangeRatesController, DashboardController
+from app.api.controllers.dashboard_controller import DashboardController
+from app.api.controllers.exchange_rates_controller import ExchangeRatesController
 from utils import build_openapi
 
 OS_CONFIG_PATH = "configs/agent_os_config.yaml"

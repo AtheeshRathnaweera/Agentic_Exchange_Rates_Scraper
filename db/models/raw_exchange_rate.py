@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, String, Float, TIMESTAMP, Text
 
-from db.models import Base
+from db.models.base import Base
 
 
 class RawExchangeRate(Base):

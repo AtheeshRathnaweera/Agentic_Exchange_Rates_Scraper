@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, TIMESTAMP, Text
 
-from app.models import ScraperJobStatus
-from db.models import Base
+from app.models.scraper_job_status import ScraperJobStatus
+from db.models.base import Base
 
 
 class ScraperJob(Base):

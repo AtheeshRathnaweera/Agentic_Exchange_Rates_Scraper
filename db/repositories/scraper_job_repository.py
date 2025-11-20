@@ -1,9 +1,9 @@
 from typing import List
 from datetime import datetime, timezone
 
-from db.models import ScraperJob
-from db.repositories import BaseRepository
-from app.models import ScraperJobStatus
+from app.models.scraper_job_status import ScraperJobStatus
+from db.models.scraper_job import ScraperJob
+from db.repositories.base_repository import BaseRepository
 
 
 class ScraperJobRepository(BaseRepository[ScraperJob]):

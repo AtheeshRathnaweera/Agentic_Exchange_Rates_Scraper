@@ -4,8 +4,8 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 from agno.workflow import StepInput, StepOutput
 
 from app.api.factories.repositories import build_exchange_rates_repository
-from app.models import ExchangeRate
-from db.models import RawExchangeRate
+from app.models.exchange_rate import ExchangeRate
+from db.models.raw_exchange_rate import RawExchangeRate
 from utils import get_logger
 
 logger = get_logger(__name__)

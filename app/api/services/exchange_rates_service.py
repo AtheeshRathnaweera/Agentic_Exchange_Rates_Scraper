@@ -3,10 +3,12 @@ from agno.run.workflow import WorkflowRunOutput
 from agno.utils.pprint import pprint_run_response
 from agno.run.base import RunStatus
 
-from app.models import ScraperJobStatus
-from app.api.dtos import RawExchangeRateDTO, ScraperJobDTO
-from db.models import ScraperJob
-from db.repositories import RawExchangeRateRepository, ScraperJobRepository
+from app.api.dtos.raw_echange_rate_dto import RawExchangeRateDTO
+from app.api.dtos.scraper_job_dto import ScraperJobDTO
+from app.models.scraper_job_status import ScraperJobStatus
+from db.models.scraper_job import ScraperJob
+from db.repositories.raw_exchange_rate_repository import RawExchangeRateRepository
+from db.repositories.scraper_job_repository import ScraperJobRepository
 from utils import get_logger
 from workflows import get_scrape_rates_workflow
 

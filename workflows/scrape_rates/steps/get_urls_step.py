@@ -2,7 +2,7 @@ from pathlib import Path
 from agno.workflow import StepInput, StepOutput
 import yaml
 
-from app.models import ScrapeTarget
+from app.models.scrape_target import ScrapeTarget
 from utils import get_logger
 
 logger = get_logger(__name__)

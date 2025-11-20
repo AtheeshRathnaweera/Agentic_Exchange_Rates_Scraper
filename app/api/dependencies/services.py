@@ -5,7 +5,8 @@ from app.api.dependencies.repositories import (
     get_exchange_rates_repository,
     get_scraper_job_repository,
 )
-from app.api.services import ExchangeRatesService
+from app.api.services.dashboard_service import DashboardService
+from app.api.services.exchange_rates_service import ExchangeRatesService
 
 
 def get_exchange_rates_service(
@@ -29,3 +30,10 @@ def get_exchange_rates_service(
     return ExchangeRatesService(
         repo=repo, job_repo=job_repo, correlation_id=correlation_id
     )
+
+
+def get_dashboard_service(
+    repo=Depends(get_exchange_rates_repository),
+    job_repo=Depends(get_scraper_job_repository),
+) -> DashboardService:
+    return DashboardService(repo=repo, job_repo=job_repo)

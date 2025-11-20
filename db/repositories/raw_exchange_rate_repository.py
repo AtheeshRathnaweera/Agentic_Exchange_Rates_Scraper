@@ -1,9 +1,9 @@
 from datetime import datetime
 from typing import List
-
 from sqlalchemy import Date, extract
-from db.models import RawExchangeRate
-from db.repositories import BaseRepository
+
+from db.models.raw_exchange_rate import RawExchangeRate
+from db.repositories.base_repository import BaseRepository
 
 
 class RawExchangeRateRepository(BaseRepository[RawExchangeRate]):

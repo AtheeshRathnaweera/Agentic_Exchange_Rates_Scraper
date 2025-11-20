@@ -13,7 +13,7 @@ from app.api.factories.repositories import (
     build_exchange_rates_repository,
     build_scraper_job_repository,
 )
-from app.api.services import ExchangeRatesService
+from app.api.services.exchange_rates_service import ExchangeRatesService
 
 
 def get_exchange_rates_service_with_cid(correlation_id: str) -> ExchangeRatesService:
