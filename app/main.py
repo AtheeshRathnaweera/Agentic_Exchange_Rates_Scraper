@@ -1,8 +1,9 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from agno.os import AgentOS
 
 from agents import get_scraping_agent
-from app.api.controllers import ExchangeRatesController
+from app.api.controllers import ExchangeRatesController, DashboardController
 from utils import build_openapi
 
 OS_CONFIG_PATH = "configs/agent_os_config.yaml"
@@ -25,9 +26,11 @@ app = FastAPI(
 
 # Public routes
 app.include_router(ExchangeRatesController.router)
+app.include_router(DashboardController.router)
 
 # Mount Agno’s internal OS separately
 app.mount("/agentOS", agent_os.get_app())
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 # API docs -> http://localhost:8000/docs#
 # AgentOS docs -> http://localhost:8000/agentOS/docs#
