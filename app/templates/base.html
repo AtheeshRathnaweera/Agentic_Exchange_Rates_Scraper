@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap"
+      rel="stylesheet">
+    <style type="text/tailwindcss">
+    @theme {
+        --color-clifford: #da373d;
+      }
+  </style>
+  </head>
+  <body
+    class="flex flex-col min-h-screen bg-gradient-to-br from-slate-950 via-cyan-950 to-slate-900 text-white font-[DM_Sans]">
+    {% include "components/navbar.html" %}
+    <main class="flex-1">{% block content %}{% endblock %}</main>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script
+      src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  </body>
+</html>
