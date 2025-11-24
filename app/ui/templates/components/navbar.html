@@ -1,10 +1,10 @@
+{% macro nav_bar(last_updated_time) %}
 <nav class="p-4 flex justify-between pb-0">
   <div class="flex items-center gap-2">
-    <div
-      class="flex items-center justify-center h-8 w-8 shadow-lg shadow-cyan-500/30 rounded-lg">
-      <img src="{{ url_for('static', path='images/logo.png') }}" alt="Logo" class="w-auto h-auto object-contain" />
-    </div>
-    <span class="font-light text-xl">LKExRates</span>
+    <span
+      class="font-light text-xl px-3 py-1 border-2 border-white/10 rounded-lg shadow-white-500/30 shadow-sm bg-white/8">
+      LKExRates
+    </span>
   </div>
   <div class="space-x-3 flex items-center">
     <span
@@ -14,7 +14,10 @@
         <path stroke-linecap="round" stroke-linejoin="round"
           d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
       </svg>
-      <p class="text-sm whitespace-nowrap ml-2 text-cyan-300">Last updated: Today 6:00 AM</p>
+      <p class="text-sm whitespace-nowrap ml-2 text-cyan-300">
+        Last updated: {{ last_updated_time if last_updated_time else 'N/A' }}
+        (GMT+05:30)
+      </p>
     </span>
     <span
       class="inline-flex items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 items-center">
@@ -23,3 +26,4 @@
     </span>
   </div>
 </nav>
+{% endmacro %}
