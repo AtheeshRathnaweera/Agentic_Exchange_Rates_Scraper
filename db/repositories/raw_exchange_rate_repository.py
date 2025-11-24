@@ -57,14 +57,28 @@ class RawExchangeRateRepository(BaseRepository[RawExchangeRate]):
             .all()
         )
 
-    def save(self, new_obj: RawExchangeRate):
+    def save(self, new_obj: RawExchangeRate) -> RawExchangeRate:
         """
         Save a single RawExchangeRate object to the database.
         """
         return self.create(obj=new_obj)
 
-    def save_bulk(self, new_objs: List[RawExchangeRate]):
+    def save_bulk(self, new_objs: List[RawExchangeRate]) -> List[RawExchangeRate]:
         """
         Save multiple RawExchangeRate objects to the database in bulk.
         """
         return self.bulk_create(objects=new_objs)
+
+    def get_last_updated_time(self):
+        """
+        Get the most recent created_date from the RawExchangeRate table.
+
+        Returns:
+            datetime or None: The latest created_date, or None if no records exist.
+        """
+        latest_raw = (
+            self.db.query(self.model.created_date)
+            .order_by(self.model.created_date.desc())
+            .first()
+        )
+        return latest_raw[0] if latest_raw else None
