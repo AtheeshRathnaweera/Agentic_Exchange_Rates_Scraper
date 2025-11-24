@@ -17,7 +17,7 @@ class RawExchangeRate(Base):
     last_updated = Column(TIMESTAMP, nullable=False)
     source_url = Column(String(255))
     currency_name = Column(String(50), nullable=False)
-    currency_code = Column(String(10), nullable=False)
+    currency_code = Column(String(10), nullable=False, index=True)
     tt_buying = Column(Float)
     tt_selling = Column(Float)
     draft_buying = Column(Float)
@@ -29,8 +29,18 @@ class RawExchangeRate(Base):
     other_buying = Column(Float)
     other_selling = Column(Float)
     notes = Column(Text)
-    tag = Column(String(50))
+    tag = Column(String(50), nullable=False, index=True)
     created_date = Column(
-        TIMESTAMP, nullable=False, default=lambda: datetime.now(timezone.utc)
+        TIMESTAMP,
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        index=True,
     )
     correlation_id = Column(String(100), nullable=False)
+
+    def __str__(self):
+        return (
+            f"RawExchangeRate(id={self.id}, bank_name='{self.bank_name}', "
+            f"currency_code='{self.currency_code}', tt_buying={self.tt_buying}, "
+            f"tt_selling={self.tt_selling}, created_date={self.created_date})"
+        )
