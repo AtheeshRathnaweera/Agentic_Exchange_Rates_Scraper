@@ -1,5 +1,8 @@
+{% from "components/navbar.html" import nav_bar%}
+
 <!DOCTYPE html>
 <html>
+
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,15 +11,17 @@
     <link
       href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap"
       rel="stylesheet">
-    <style type="text/tailwindcss">
-    @theme {
-        --color-clifford: #da373d;
-      }
-  </style>
+    <link rel="stylesheet"
+      href="{{ url_for('static', path='css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/theme.css') }}"
+      type="text/tailwindcss">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+      defer></script>
   </head>
+
   <body
-    class="flex flex-col min-h-screen bg-gradient-to-br from-slate-950 via-cyan-950 to-slate-900 text-white font-[DM_Sans]">
-    {% include "components/navbar.html" %}
+    class="flex flex-col min-h-screen bg-linear-to-br from-slate-950 via-cyan-950 to-slate-900 text-white font-[DM_Sans]">
+    {{ nav_bar(data.last_updated_time) }}
     <main class="flex-1">{% block content %}{% endblock %}</main>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script

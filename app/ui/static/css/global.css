@@ -1,0 +1,24 @@
+/* Webkit browsers (Chrome, Safari, Edge) */
+.dropdown-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dropdown-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dropdown-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #06b6d4, #0891b2);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.dropdown-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #0891b2, #0369a1);
+}
+
+/* Firefox */
+.dropdown-scroll {
+  scrollbar-color: #06b6d4 transparent;
+  scrollbar-width: thin;
+}
