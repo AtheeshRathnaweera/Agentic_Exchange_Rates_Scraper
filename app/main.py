@@ -31,7 +31,7 @@ app.include_router(DashboardController.router)
 
 # Mount Agno’s internal OS separately
 app.mount("/agentOS", agent_os.get_app())
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.mount("/static", StaticFiles(directory="app/ui/static"), name="static")
 
 # API docs -> http://localhost:8000/docs#
 # AgentOS docs -> http://localhost:8000/agentOS/docs#
