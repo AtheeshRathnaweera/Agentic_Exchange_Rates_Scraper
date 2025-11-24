@@ -6,7 +6,7 @@ scrape_targets:
     url: "https://www.sampath.lk/api/exchange-rates"
     tag: sampath
   - name: national_savings_bank
-    url: "https://www.nsb.lk/rates-tarriffs/exchange-rates/"
+    url: "https://www.nsb.lk/rates-tarriffs/nsb-exchange-rates/"
     tag: nsb
   - name: bank_of_ceylon
     url: "https://www.boc.lk/rates-tariff"
