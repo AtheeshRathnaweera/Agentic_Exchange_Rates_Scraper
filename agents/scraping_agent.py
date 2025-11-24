@@ -2,7 +2,7 @@ from agno.agent import Agent
 from agno.models.groq import Groq
 
 from agents.fewshots import html_examples, json_examples
-from app.models.exchange_rate import ExchangeRate
+from app.api.models.exchange_rate import ExchangeRate
 
 
 def get_scraping_agent(

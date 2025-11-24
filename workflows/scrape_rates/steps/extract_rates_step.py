@@ -7,8 +7,8 @@ from bs4 import BeautifulSoup, Comment
 import httpx
 
 from agents import get_scraping_agent
-from app.models.exchange_rate import ExchangeRate
-from app.models.scrape_target import ScrapeTarget
+from app.api.models.exchange_rate import ExchangeRate
+from app.api.models.scrape_target import ScrapeTarget
 from utils import get_logger
 
 logger = get_logger(__name__)

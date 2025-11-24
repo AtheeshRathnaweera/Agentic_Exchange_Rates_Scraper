@@ -7,7 +7,7 @@ from app.api.dtos.generic_response import GenericResponse
 from app.api.dtos.raw_echange_rate_dto import RawExchangeRateDTO
 from app.api.factories.services import get_exchange_rates_service_with_cid
 from app.api.services.exchange_rates_service import ExchangeRatesService
-from app.models.scraper_job_status import ScraperJobStatus
+from app.api.models.scraper_job_status import ScraperJobStatus
 from utils import get_logger
 
 logger = get_logger(__name__)

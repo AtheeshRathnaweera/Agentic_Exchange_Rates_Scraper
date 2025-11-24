@@ -1,7 +1,7 @@
 from typing import List
 from datetime import datetime, timezone
 
-from app.models.scraper_job_status import ScraperJobStatus
+from app.api.models.scraper_job_status import ScraperJobStatus
 from db.models.scraper_job import ScraperJob
 from db.repositories.base_repository import BaseRepository
 
