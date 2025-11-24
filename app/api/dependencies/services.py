@@ -4,6 +4,8 @@ from fastapi import Depends
 from app.api.dependencies.repositories import (
     get_exchange_rates_repository,
     get_scraper_job_repository,
+    get_currency_repository,
+    get_bank_repository,
 )
 from app.api.services.dashboard_service import DashboardService
 from app.api.services.exchange_rates_service import ExchangeRatesService
@@ -33,7 +35,14 @@ def get_exchange_rates_service(
 
 
 def get_dashboard_service(
-    repo=Depends(get_exchange_rates_repository),
-    job_repo=Depends(get_scraper_job_repository),
+    raw_exhange_repo=Depends(get_exchange_rates_repository),
+    scraper_job_repo=Depends(get_scraper_job_repository),
+    currency_repo=Depends(get_currency_repository),
+    bank_repo=Depends(get_bank_repository),
 ) -> DashboardService:
-    return DashboardService(repo=repo, job_repo=job_repo)
+    return DashboardService(
+        raw_exhange_repo=raw_exhange_repo,
+        scraper_job_repo=scraper_job_repo,
+        currency_repo=currency_repo,
+        bank_repo=bank_repo,
+    )
