@@ -1,5 +1,6 @@
 from fastapi import Depends
 
+from db.repositories.dashboard_repository import DashboardRepository
 from db.repositories.raw_exchange_rate_repository import RawExchangeRateRepository
 from db.repositories.scraper_job_repository import ScraperJobRepository
 from db.repositories.bank_repository import BankRepository
@@ -57,3 +58,10 @@ def get_currency_repository(db=Depends(get_db)) -> CurrencyRepository:
         CurrencyRepository: Repository instance for job status operations.
     """
     return CurrencyRepository(db=db)
+
+
+def get_dashboard_repository(db=Depends(get_db)) -> DashboardRepository:
+    """
+    Dependency injection factory for DashboardRepository.
+    """
+    return DashboardRepository(db=db)

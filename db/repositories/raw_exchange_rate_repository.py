@@ -1,6 +1,6 @@
 from datetime import datetime
-from typing import List, Optional
-from sqlalchemy import Date, extract, or_
+from typing import List
+from sqlalchemy import Date, extract
 
 from db.models.raw_exchange_rate import RawExchangeRate
 from db.repositories.base_repository import BaseRepository
@@ -85,47 +85,3 @@ class RawExchangeRateRepository(BaseRepository[RawExchangeRate]):
             .first()
         )
         return latest_raw[0] if latest_raw else None
-
-    def get_by_created_date_with_filters(
-        self,
-        created_date: str,
-        search: Optional[str] = None,
-        currency_code: Optional[str] = None,
-        bank_code: Optional[str] = None,
-    ) -> List[RawExchangeRate]:
-        logger.info(
-            "dashboard rates called: search: %s currency: %s bank: %s created_date: %s",
-            search,
-            currency_code,
-            bank_code,
-            created_date,
-        )
-        date_obj = datetime.strptime(created_date, "%Y-%m-%d").date()
-        # Start with base date query
-        query = self.db.query(self.model).filter(
-            self.model.created_date.cast(Date) == date_obj
-        )
-
-        # Apply search filter (assuming currency relationship exists)
-        if search and search.strip():
-            search_term = f"%{search.strip()}%"
-            query = query.filter(
-                or_(
-                    self.model.currency_code.ilike(search_term),
-                    self.model.currency_name.ilike(search_term),
-                    self.model.bank_name.ilike(search_term),
-                )
-            )
-
-        # Apply currency filter
-        if currency_code and currency_code.strip():
-            query = query.filter(self.model.currency_code == currency_code.strip())
-
-        # Apply bank filter
-        if bank_code and bank_code.strip():
-            logger.info("filtering by bank_code")
-            query = query.filter(self.model.tag == bank_code.strip())
-
-        logger.info("Query count: %s", query.count())
-
-        return query.all()
