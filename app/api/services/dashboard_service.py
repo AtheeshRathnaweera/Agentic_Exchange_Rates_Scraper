@@ -1,12 +1,21 @@
+from datetime import datetime
+from typing import List, Optional
+
 from app.api.constants.rate_types import RATE_TYPES
 from app.api.dtos.bank_basic_dto import BankBasicDTO
 from app.api.dtos.currency_dto import CurrencyDTO
 from app.api.dtos.dashboard_meta_dto import DashboardMetaDTO
+from app.api.dtos.dashboard_rate_dto import DashboardRateDTO
+from app.api.dtos.dashboard_today_rates_dto import DashboardTodayRateDTO
 from app.api.dtos.rate_types_dto import RateTypesDTO
+from db.models.raw_exchange_rate import RawExchangeRate
 from db.repositories.raw_exchange_rate_repository import RawExchangeRateRepository
 from db.repositories.scraper_job_repository import ScraperJobRepository
 from db.repositories.bank_repository import BankRepository
 from db.repositories.currency_repository import CurrencyRepository
+from utils import get_logger
+
+logger = get_logger(__name__)
 
 
 class DashboardService:
@@ -53,3 +62,85 @@ class DashboardService:
         )
 
         return meta_data
+
+    def get_today_rates(
+        self,
+        search: Optional[str] = None,
+        currency: Optional[str] = None,
+        bank_code: Optional[str] = None,
+        rate_type: Optional[str] = None,
+    ) -> List[DashboardTodayRateDTO]:
+        # Get today's date in YYYY-MM-DD format
+        today = datetime.now().date().isoformat()
+
+        # Validate rate_type if provided
+        if rate_type and rate_type not in RATE_TYPES:
+            raise ValueError(
+                f"Invalid rate_type: {rate_type}. Valid options: {list(RATE_TYPES.keys())}"
+            )
+
+        today_rates: List[RawExchangeRate] = (
+            self._raw_exchange_repo.get_by_created_date_with_filters(
+                created_date=today,
+                search=search,
+                currency_code=currency,
+                bank_code=bank_code,
+            )
+        )
+
+        if not today_rates:
+            logger.info("No rates found for today (%s) with given filters", today)
+            return []
+
+        processed_rates = []
+
+        for rate in today_rates:
+            rates: List[DashboardRateDTO] = []
+
+            rate_mappings = {
+                "tt": [
+                    ("tt_buying", rate.tt_buying),
+                    ("tt_selling", rate.tt_selling),
+                ],
+                "draft": [
+                    ("draft_buying", rate.draft_buying),
+                    ("draft_selling", rate.draft_selling),
+                ],
+                "cheques": [
+                    ("cheques_buying", rate.cheques_buying),
+                    ("cheques_selling", rate.cheques_selling),
+                ],
+                "currency": [
+                    ("currency_buying", rate.currency_buying),
+                    ("currency_selling", rate.currency_selling),
+                ],
+                "other": [
+                    ("other_buying", rate.other_buying),
+                    ("other_selling", rate.other_selling),
+                ],
+            }
+
+            if rate_type and rate_type in rate_mappings:
+                for rate_name, rate_value in rate_mappings[rate_type]:
+                    if rate_value is not None:
+                        rates.append(DashboardRateDTO(type=rate_name, value=rate_value))
+            else:
+                for rate_name, rate_value in rate_mappings["tt"]:
+                    if rate_value is not None:
+                        rates.append(DashboardRateDTO(type=rate_name, value=rate_value))
+
+            if len(rates) > 0:
+                processed_rates.append(
+                    DashboardTodayRateDTO(
+                        id=rate.id,
+                        bank_name=rate.bank_name,
+                        last_updated=rate.last_updated,
+                        currency_code=rate.currency_code,
+                        currency_name=rate.currency_name,
+                        rates=rates,
+                        tag=rate.tag,
+                        created_date=rate.created_date,
+                    )
+                )
+
+        return processed_rates
