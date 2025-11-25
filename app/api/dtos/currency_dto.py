@@ -1,12 +1,10 @@
 from datetime import datetime
-from pydantic import BaseModel
+
+from app.api.dtos.currency_basic_dto import CurrencyBasicDTO
 
 
-class CurrencyDTO(BaseModel):
+class CurrencyDTO(CurrencyBasicDTO):
     id: int
-    code: str
-    symbol: str
-    name: str
     country: str
     active: bool
     created_date: datetime
