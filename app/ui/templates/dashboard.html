@@ -18,57 +18,14 @@
   </lottie-player>
 </div>
 {% endblock %}
-<div class="p-3 sm:p-4 lg:px-10 mt-1">
+<div class="p-3 sm:p-4 lg:px-10 mt-1" x-data="ratesFilterComponent()" x-init="triggerUpdate()"
+  @currency-update.window="currencySelected = $event.detail; triggerUpdate()"
+  @bank-update.window="bankSelected = $event.detail; triggerUpdate()"
+  @rate-type-update.window="rateTypeSelected = $event.detail; triggerUpdate()">
   {%block filters %}
-  <div class="mb-6 sm:mb-8 space-y-3 sm:space-y-4" x-data="{
-        searchValue: '',
-        currencySelected: '', 
-        bankSelected: '', 
-        rateTypeSelected: '',
-        get hasActiveFilters() {
-          return this.searchValue.trim() || this.currencySelected || this.bankSelected || this.rateTypeSelected;
-        },
-        handleSearchInput(event){
-          this.searchValue = event.target.value.trim();
-
-          // Only search if 2+ characters or empty (to show all)
-          if (this.searchValue.length >= 2 || this.searchValue.length === 0) {
-            this.triggerUpdate();
-          }
-        },
-        triggerUpdate() {
-          console.log('trigger function called: ', this.currencySelected, ' bank: ', this.bankSelected, 'rateType: ', this.rateTypeSelected, 'search: ', this.searchValue);
-
-          htmx.ajax('GET', '/dashboard/rates', {
-            target: '#rates-container',
-            values: {
-              search: this.searchValue,
-              currency: this.currencySelected,
-              bank: this.bankSelected,
-              rateType: this.rateTypeSelected
-            }
-          });
-        },
-        resetAllFilters() {
-          this.searchValue = '';
-          this.currencySelected = '';
-          this.bankSelected = '';
-          this.rateTypeSelected = '';
-
-          // Clear the search input field
-          document.getElementById('search-input').value = '';
-         
-          // Reset dropdown displays by dispatching custom reset events
-          window.dispatchEvent(new CustomEvent('reset-filters'));
-         
-          this.triggerUpdate();
-        },
-      }" @currency-update.window="currencySelected = $event.detail; triggerUpdate()"
-    @bank-update.window="bankSelected = $event.detail; triggerUpdate()"
-    @rate-type-update.window="rateTypeSelected = $event.detail; triggerUpdate()">
-    <div hx-target="#rates-container" hx-indicator="#loading-spinner"
-      class="grid sm:grid-cols-2 sm:flex sm:flex-wrap gap-2 lg:gap-3">
-      <div class="sm:col-span-2 w-12/12 md:w-4/12">
+  <div class="mb-6 sm:mb-8 space-y-3 sm:space-y-4">
+    <div class="grid sm:grid-cols-2 md:grid-cols-3 sm:flex sm:flex-wrap gap-2 lg:gap-3">
+      <div class="sm:col-span-2 md:col-span-3 w-12/12 md:w-5/12 lg:w-4/12">
         <div class="relative">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -82,18 +39,18 @@
             placeholder="Search by currency name or code..." />
         </div>
       </div>
-      <div class="w-full sm:w-6/12 md:w-2/12 lg:w-2/12">
+      <div class="w-full sm:w-6/12 md:w-3/12 lg:w-2/12">
         {{ dropdown('', data.currencies, eventName='currency-update', emptyLabel='All Currencies',
         resetEvent='reset-filters') }}
       </div>
-      <div class="md:w-2/12 lg:w-2/12">
+      <div class="md:w-3/12 lg:w-2/12">
         {{ dropdown('', data.banks, eventName='bank-update', emptyLabel='All Banks', resetEvent='reset-filters') }}
       </div>
-      <div class="md:w-2/12 lg:w-2/12">
-        {{ dropdown('', data.rate_types, eventName='rate-type-update', emptyLabel='All Rate Types',
+      <div class="md:w-3/12 lg:w-2/12">
+        {{ dropdown('tt', data.rate_types, eventName='rate-type-update', emptyLabel='All Rate Types',
         resetEvent='reset-filters') }}
       </div>
-      <div class="w-12/12 md:w-1/12">
+      <div class="w-12/12 md:w-3/12 lg:w-1/12">
         <button @click="resetAllFilters()" :disabled="!hasActiveFilters" data-slot="button"
           class="cursor-pointer inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 px-4 py-2 has-[&gt;svg]:px-3 h-11 bg-slate-900/50 border-cyan-700/30 text-white hover:bg-slate-800/50 hover:border-cyan-500/50 rounded-xl w-full sm:w-auto"
           :class="{ 
@@ -108,16 +65,25 @@
   {% endblock %}
   {%block rates %}
   <div id="rates-container" class="grid grid-cols-1 gap-3">
-    {{ rates_list() }}
-  </div>
-  <div id="loading-spinner" class="htmx-request htmx-indicator text-center py-3 sm:py-4">
-    <div class="inline-block animate-spin">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-        class="size-6" class="text-cyan-500">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-      </svg>
+    <!-- Loading State -->
+    <div x-show="loading" class="text-center py-8" x-cloak>
+      <div class="inline-block animate-spin w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full"></div>
+      <p class="text-slate-400 mt-2">Loading rates...</p>
     </div>
+    <!-- Error State -->
+    <div x-show="error && !loading" class="text-center py-8 text-red-400" x-cloak>
+      <p x-text="'Failed to load rates: ' + error"></p>
+      <button @click="triggerUpdate()" class="mt-2 px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 cursor-pointer">
+        Retry
+      </button>
+    </div>
+    <!-- Empty State -->
+    <div x-show="!loading && !error && ratesData.length === 0" class="text-center py-8 text-slate-400" x-cloak>
+      <p class="text-sm">Unable to load rates at the moment. Please try again later.</p>
+    </div>
+    <pre class="text-xs text-green-300" x-text="JSON.stringify(ratesData, null, 2)"></pre>
+
+    <!-- {{ rates_list() }} -->
   </div>
   {% endblock %}
 </div>
