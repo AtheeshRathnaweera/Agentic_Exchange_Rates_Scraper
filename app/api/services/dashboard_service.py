@@ -1,14 +1,17 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from app.api.constants.rate_types import RATE_TYPES
 from app.api.dtos.bank_basic_dto import BankBasicDTO
+from app.api.dtos.currency_basic_dto import CurrencyBasicDTO
 from app.api.dtos.currency_dto import CurrencyDTO
 from app.api.dtos.dashboard_meta_dto import DashboardMetaDTO
 from app.api.dtos.dashboard_rate_dto import DashboardRateDTO
 from app.api.dtos.dashboard_today_rates_dto import DashboardTodayRateDTO
 from app.api.dtos.rate_types_dto import RateTypesDTO
+from db.models.currency import Currency
 from db.models.raw_exchange_rate import RawExchangeRate
+from db.repositories.dashboard_repository import DashboardRepository
 from db.repositories.raw_exchange_rate_repository import RawExchangeRateRepository
 from db.repositories.scraper_job_repository import ScraperJobRepository
 from db.repositories.bank_repository import BankRepository
@@ -22,12 +25,14 @@ class DashboardService:
 
     def __init__(
         self,
+        dashboard_repo: DashboardRepository = None,
         raw_exhange_repo: RawExchangeRateRepository = None,
         scraper_job_repo: ScraperJobRepository = None,
         currency_repo: CurrencyRepository = None,
         bank_repo: BankRepository = None,
         correlation_id: str | None = None,
     ):
+        self._dashboard_repo = dashboard_repo
         self._raw_exchange_repo = raw_exhange_repo
         self._scraper_job_repo = scraper_job_repo
         self._currency_repo = currency_repo
@@ -79,8 +84,8 @@ class DashboardService:
                 f"Invalid rate_type: {rate_type}. Valid options: {list(RATE_TYPES.keys())}"
             )
 
-        today_rates: List[RawExchangeRate] = (
-            self._raw_exchange_repo.get_by_created_date_with_filters(
+        today_rates: List[Tuple[RawExchangeRate, Currency]] = (
+            self._dashboard_repo.get_by_created_date_with_filters(
                 created_date=today,
                 search=search,
                 currency_code=currency,
@@ -94,7 +99,7 @@ class DashboardService:
 
         processed_rates = []
 
-        for rate in today_rates:
+        for rate, currency_info in today_rates:
             rates: List[DashboardRateDTO] = []
 
             rate_mappings = {
@@ -135,8 +140,9 @@ class DashboardService:
                         id=rate.id,
                         bank_name=rate.bank_name,
                         last_updated=rate.last_updated,
-                        currency_code=rate.currency_code,
-                        currency_name=rate.currency_name,
+                        currency=CurrencyBasicDTO.model_validate(
+                            currency_info, from_attributes=True
+                        ),
                         rates=rates,
                         tag=rate.tag,
                         created_date=rate.created_date,
