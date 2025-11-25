@@ -12,11 +12,11 @@ class RawExchangeRate(Base):
     __tablename__ = "raw_exchange_rates"
 
     id = Column(Integer, primary_key=True)
-    bank_name = Column(String(100), nullable=False)
+    bank_name = Column(String(100), nullable=False, index=True)
     country = Column(String(50), nullable=False, default="Sri Lanka")
     last_updated = Column(TIMESTAMP, nullable=False)
     source_url = Column(String(255))
-    currency_name = Column(String(50), nullable=False)
+    currency_name = Column(String(50), nullable=False, index=True)
     currency_code = Column(String(10), nullable=False, index=True)
     tt_buying = Column(Float)
     tt_selling = Column(Float)
