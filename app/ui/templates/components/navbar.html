@@ -1,29 +1,59 @@
 {% macro nav_bar(last_updated_time) %}
-<nav class="p-4 flex justify-between pb-0">
-  <div class="flex items-center gap-2">
+<nav class="px-2 py-3 sm:p-4 pb-0 flex flex-col gap-3">
+  <!-- Top row for small screens -->
+  <div class="md:hidden flex items-center w-full">
     <span
-      class="font-light text-xl px-3 py-1 border-2 border-white/10 rounded-lg shadow-white-500/30 shadow-sm bg-white/8">
+      class="font-light text-md px-3 py-1 border-2 border-white/10 rounded-lg shadow-white-500/30 shadow-sm bg-white/8 w-fit">
       LKExRates
     </span>
-  </div>
-  <div class="space-x-3 flex items-center">
-    <span
-      class="inline-flex items-center justify-center rounded-full bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-0.5 items-center">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#67E8F9"
-        class="w-4 h-4">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-      </svg>
-      <p class="text-sm whitespace-nowrap ml-2 text-cyan-300">
-        Last updated: {{ last_updated_time if last_updated_time else 'N/A' }}
-        (GMT+05:30)
-      </p>
-    </span>
-    <span
-      class="inline-flex items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 items-center">
+    <span class="inline-flex justify-center rounded-full bg-emerald-500/10 
+        border border-emerald-500/20 px-2.5 py-0.5 items-center w-fit ml-auto">
       <span class="inline-block w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
       <p class="text-sm whitespace-nowrap ml-2 text-emerald-400">Daily Sync</p>
     </span>
+  </div>
+  <!-- Last Updated badge (full width on small screens) -->
+  <div class="md:hidden flex justify-center w-full">
+    <span class="inline-flex justify-start rounded-full bg-cyan-500/10 border 
+        border-cyan-500/20 px-2.5 py-0.5 items-center w-fit">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#67E8F9"
+        class="w-4 h-4">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 
+           3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 
+           0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+      </svg>
+      <p class="text-xs whitespace-nowrap ml-2 text-cyan-300">
+        Last updated: {{ last_updated_time if last_updated_time else 'N/A' }} (GMT+05:30)
+      </p>
+    </span>
+  </div>
+
+  <!-- Normal layout for medium+ screens -->
+  <div class="hidden md:flex justify-between items-center w-full">
+    <span
+      class="font-light text-xl px-3 py-1 border-2 border-white/10 rounded-lg shadow-white-500/30 shadow-sm bg-white/8 w-fit">
+      LKExRates
+    </span>
+    <div class="flex items-center gap-3">
+      <span class="inline-flex justify-center rounded-full bg-cyan-500/10 border 
+          border-cyan-500/20 px-2.5 py-0.5 items-center w-fit">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#67E8F9"
+          class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 
+             3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 
+             0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+        </svg>
+        <p class="text-sm whitespace-nowrap ml-2 text-cyan-300">
+          Last updated: {{ last_updated_time if last_updated_time else 'N/A' }} (GMT+05:30)
+        </p>
+      </span>
+
+      <span class="inline-flex justify-center rounded-full bg-emerald-500/10 border 
+          border-emerald-500/20 px-2.5 py-0.5 items-center w-fit">
+        <span class="inline-block w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+        <p class="text-sm whitespace-nowrap ml-2 text-emerald-400">Daily Sync</p>
+      </span>
+    </div>
   </div>
 </nav>
 {% endmacro %}

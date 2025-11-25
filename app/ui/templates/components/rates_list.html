@@ -1,0 +1,26 @@
+{% from "components/rate_card.html" import rate_card %}
+
+{% macro rates_list() %}
+  {% if rates %}
+    {% for rate in rates %}
+      {{ rate_card(rate.currency, rate.data) }}
+    {% endfor %}
+  {% else %}
+    <div class="text-center py-4 sm:py-8 text-slate-400">
+      <p class="text-sm sm:text-base">No rates found matching your filters</p>
+    </div>
+  {% endif %}
+{% endmacro %}
+
+  <!-- <div class="grid grid-cols-1 gap-3">
+      {{ rate_card(
+      {"symbol": "$", "code": "USD", "name":"US Dollar"}, {"bank_name": "Commercial Bank","today": {"tt_buying":
+      "305.05","tt_selling": "311.55", "created_date": "2025-11-19 06:41:54.497"}, "yesterday": {"tt_buying": "304.05",
+      "tt_selling": "310.55"}}
+      )}}
+      {{ rate_card(
+      {"symbol": "€", "code": "EUR", "name":"Euro"}, {"bank_name": "Commercial Bank","today": {"tt_buying":
+      "190.05","tt_selling": "311.55", "created_date": "2025-11-19 06:41:54.497"}, "yesterday": {"tt_buying": "200.05",
+      "tt_selling": "310.55"}}
+      )}}
+    </div> -->
