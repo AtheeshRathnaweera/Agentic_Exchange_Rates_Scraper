@@ -4,15 +4,35 @@ resetEvent="reset") %}
       open: false,
       selected: {{ selectedValue | default("", true) | tojson | safe }},
       options: {{ options|default([], true) | tojson | safe}},
-      originalEmptyLabel: "{{ emptyLabel }}"
+      originalEmptyLabel: "{{ emptyLabel }}",
+
+      // Computed property to get the display value
+      get displayValue() {
+        if (!this.selected) return "";
+        
+        // Find the option that matches the selected value
+        const selectedOption = this.options.find(option => {
+          if (typeof option === "object") {
+            return option.id === this.selected;
+          }
+          return option === this.selected;
+        });
+        
+        // Return the display value or fallback to selected
+        if (selectedOption) {
+          return typeof selectedOption === "object" ? selectedOption.value : selectedOption;
+        }
+        return this.selected;
+      }
+
     }' @{{ eventName }}.window="selected = $event.detail" @{{ resetEvent }}.window="selected = ''; open = false"
-  @click.outside="open = false" class="relative w-full">
+  @click.outside="open = false" class="relative w-full min-w-0">
   <button @click="open = !open" type="button"
-    class="flex items-center justify-between gap-2 border px-3 py-2 text-sm whitespace-nowrap transition-[color,box-shadow] outline-none focus-visible:ring-[3px] w-full h-11 bg-slate-900/50 border-cyan-700/30 text-white focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 rounded-xl">
-    <span x-text="selected || '{{ emptyLabel }}'" class="opacity-60" x-bind:class="{ 'opacity-100': selected }"></span>
+    class="flex items-center justify-between gap-2 border px-3 py-2 text-sm transition-[color,box-shadow] outline-none focus-visible:ring-[3px] w-full h-11 bg-slate-900/50 border-cyan-700/30 text-white focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 rounded-xl min-w-0">
+    <span x-text="displayValue || '{{ emptyLabel }}'" class="opacity-60 truncate text-left flex-1 min-w-0 overflow-hidden" x-bind:class="{ 'opacity-100': selected }"></span>
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
       stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-      class="lucide lucide-chevron-down size-4 opacity-50" aria-hidden="true">
+      class="lucide lucide-chevron-down size-4 opacity-50 shrink-0 ml-auto" aria-hidden="true">
       <path d="m6 9 6 6 6-6"></path>
     </svg>
   </button>
@@ -23,7 +43,7 @@ resetEvent="reset") %}
       {% if showEmpty %}
       <li>
         <button @click="selected = ''; open = false; $dispatch('{{ eventName }}', '')"
-          class="w-full text-left px-4 py-2 hover:bg-cyan-900/30 text-slate-400">
+          class="w-full text-left px-4 py-2 hover:bg-cyan-900/30 text-slate-400 truncate">
           {{ emptyLabel }}
         </button>
       </li>
@@ -31,9 +51,10 @@ resetEvent="reset") %}
       <template x-for="option in options" :key="typeof option === 'object' ? option.id : option">
         <li>
           <button
-            @click="selected = typeof option === 'object' ? option.value : option; open = false; $dispatch('{{ eventName }}', typeof option === 'object' ? option.id : option)"
-            class="w-full text-left px-4 py-2 hover:bg-cyan-900/30"
-            x-text="typeof option === 'object' ? option.value : option">
+            @click="selected = typeof option === 'object' ? option.id : option; open = false; $dispatch('{{ eventName }}', typeof option === 'object' ? option.id : option)"
+            class="w-full text-left px-4 py-2 hover:bg-cyan-900/30 text-nowrap"
+            x-text="typeof option === 'object' ? option.value : option"
+            :class="{ 'bg-cyan-900/50 text-cyan-300': selected === (typeof option === 'object' ? option.id : option) }">
           </button>
         </li>
       </template>
