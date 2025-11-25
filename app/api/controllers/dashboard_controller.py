@@ -23,13 +23,20 @@ class DashboardController:
             "request": request,
             "data": {
                 "currencies": [
-                    {"id": c.code, "value": f"{c.code} - {c.name}"}
-                    for c in dashboard_meta.currencies
+                    {"id": currency.code, "value": f"{currency.code} - {currency.name}"}
+                    for currency in dashboard_meta.currencies
                 ],
                 "rate_types": [
-                    rt.model_dump(mode="json") for rt in dashboard_meta.rate_types
+                    {
+                        "id": rate_type.id,
+                        "value": rate_type.name,
+                    }
+                    for rate_type in dashboard_meta.rate_types
                 ],
-                "banks": [b.model_dump(mode="json") for b in dashboard_meta.banks],
+                "banks": [
+                    {"id": bank.code, "value": f"{bank.name}"}
+                    for bank in dashboard_meta.banks
+                ],
                 "last_updated_time": dashboard_meta.last_updated_time.strftime(
                     "%b %d, %Y %I:%M %p"
                 ),

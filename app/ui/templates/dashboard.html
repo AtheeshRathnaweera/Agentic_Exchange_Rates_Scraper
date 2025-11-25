@@ -37,13 +37,21 @@
             placeholder="Search by currency name or code..." value />
         </div>
       </div>
-      <div class="sm:w-3/12" x-data="{ currencySelected: 'All Currencies' }" @update.window="currencySelected = $event.detail">
-          {{ dropdown('All Currencies', data.currencies) }}
-        <div class="mt-2 text-xs text-cyan-400">Selected: <span x-text="currencySelected"></span></div>
+      <div class="sm:w-3/12 lg:w-2/12" x-data="{ currencySelected: '' }"
+        @currency-update.window="currencySelected = $event.detail">
+        {{ dropdown('', data.currencies, eventName='currency-update', emptyLabel='All Currencies') }}
+      </div>
+      <div class="sm:w-3/12 lg:w-2/12" x-data="{ bankSelected: 'All Banks' }"
+        @bank-update.window="bankSelected = $event.detail">
+        {{ dropdown('', data.banks, eventName='bank-update', emptyLabel='All Banks') }}
+      </div>
+      <div class="sm:w-3/12 lg:w-2/12" x-data="{ rateTypeSelected: 'All Rate Types' }"
+        @rate-type-update.window="rateTypeSelected = $event.detail">
+        {{ dropdown('', data.rate_types, eventName='rate-type-update', emptyLabel='All Rate Types') }}
       </div>
       <div class="col-span-2 w-full sm:w-1/12">
         <button data-slot="button"
-          class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 px-4 py-2 has-[&gt;svg]:px-3 col-span-2 sm:col-span-1 h-11 bg-slate-900/50 border-cyan-700/30 text-white hover:bg-slate-800/50 hover:border-cyan-500/50 rounded-xl">
+          class="cursor-pointer inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 px-4 py-2 has-[&gt;svg]:px-3 col-span-2 sm:col-span-1 h-11 bg-slate-900/50 border-cyan-700/30 text-white hover:bg-slate-800/50 hover:border-cyan-500/50 rounded-xl">
           Reset Filters
         </button>
       </div>
