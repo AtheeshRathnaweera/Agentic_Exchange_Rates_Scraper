@@ -6,17 +6,17 @@
 {%block content %}
 {%block welcome_text %}
 <div
-  class="relative w-full h-[250px] sm:h-[570px] bg-dark-blue overflow-hidden">
+  class="relative w-full h-[250px] sm:h-[370px] md:h-[425px] xl:h-[475px] bg-dark-blue overflow-hidden">
   <div
     class="absolute inset-0 flex flex-col justify-center items-center z-10 text-center px-4">
-    <h1 class="text-white text-4xl sm:text-6xl font-bold mb-3">Daily Exchange
+    <h1 class="text-white text-3xl sm:text-5xl lg:text-6xl font-bold mb-3">Daily Exchange
       Rates</h1>
-    <p class="text-slate-400 text-md sm:text-xl max-w-xl">
+    <p class="text-slate-400 text-sm sm:text-md lg:text-xl max-w-xl">
       Best rates across all major banks, updated daily at 6:00 AM
     </p>
   </div>
   <lottie-player
-    class="absolute inset-0 w-full h-full object-cover scale-[1] sm:scale-[1.045] origin-center z-0"
+    class="absolute inset-0 w-full h-full object-cover scale-[1] sm:scale-[1] md:scale-[1] xl:scale-[1.255] origin-center z-0 opacity-25"
     src="{{ url_for('static', path='animations/wave.json') }}"
     background="transparent" speed="0.75" loop autoplay>
   </lottie-player>

@@ -1,5 +1,5 @@
 {% macro nav_bar(last_updated_time) %}
-<nav class="px-2 py-3 sm:p-4 pb-0 flex flex-col gap-3">
+<nav class="px-3 py-3 sm:p-4 pb-0 flex flex-col gap-3">
   <!-- Top row for small screens -->
   <div class="md:hidden flex items-center w-full">
     <span class="font-light text-md w-fit">
@@ -46,7 +46,6 @@
           Last updated: {{ last_updated_time if last_updated_time else 'N/A' }} (GMT+05:30)
         </p>
       </span>
-
       <span class="inline-flex justify-center rounded-full bg-emerald-500/10 border 
           border-emerald-500/20 px-2.5 py-0.5 items-center w-fit">
         <span class="inline-block w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
