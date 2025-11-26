@@ -6,7 +6,7 @@ window.ratesFilterComponent = function () {
     searchValue: '',
     currencySelected: '',
     bankSelected: '',
-    rateTypeSelected: '',
+    rateTypeSelected: 'tt',
     get hasActiveFilters() {
       return this.searchValue.trim() || this.currencySelected || this.bankSelected || this.rateTypeSelected;
     },
@@ -122,12 +122,15 @@ window.ratesFilterComponent = function () {
       };
       return bgMap[currencyCode] || 'bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600';
     },
-    formatRateType(rateType) {
-      if (rateType.includes('buying')) {
-        return 'Buy Rate';
-      } else if (rateType.includes('selling')) {
-        return 'Sell Rate';
+    formatRateType(rateName, rateType) {
+      if (!rateName.includes("All")) {
+        if (rateType.includes('buying')) {
+          return 'Buy Rate';
+        } else if (rateType.includes('selling')) {
+          return 'Sell Rate';
+        }
       }
+
       return rateType.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
     },
     resetAllFilters() {
