@@ -48,6 +48,7 @@ def get_scraping_agent(
             "If a 'tag' value is provided in the input message, include it exactly as-is in the 'tag' field of the output JSON.",
             "Standardize currencies using ISO codes and bank names "
             "(e.g., sampath_bank → Sampath Bank, hsbc_sri_lanka → HSBC Sri Lanka).",
+            "Map HNB API: buyingRate → tt_buying, sellingRate → tt_selling.",
         ],
         output_schema=ExchangeRate,
         # use_json_mode=True,
