@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import List
 from pydantic import BaseModel
 
 from app.api.dtos.currency_basic_dto import CurrencyBasicDTO
@@ -11,6 +10,6 @@ class DashboardTodayRateDTO(BaseModel):
     bank_name: str
     last_updated: datetime
     currency: CurrencyBasicDTO
-    rates: List[DashboardRateDTO]
+    rates: DashboardRateDTO
     tag: str
     created_date: datetime

@@ -1,6 +1,12 @@
 from pydantic import BaseModel
+from typing import List
+
+
+class RatesDTO(BaseModel):
+    type: str
+    value: float
 
 
 class DashboardRateDTO(BaseModel):
-    type: str
-    value: float
+    name: str
+    values: List[RatesDTO]

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from app.api.constants.rate_types import RATE_TYPES
 from app.api.dtos.bank_basic_dto import BankBasicDTO
@@ -77,12 +77,12 @@ class DashboardService:
     ) -> List[DashboardTodayRateDTO]:
         # Get today's date in YYYY-MM-DD format
         today = datetime.now().date().isoformat()
+        rate_type_name = None
 
-        # Validate rate_type if provided
-        if rate_type and rate_type not in RATE_TYPES:
-            raise ValueError(
-                f"Invalid rate_type: {rate_type}. Valid options: {list(RATE_TYPES.keys())}"
-            )
+        if rate_type and rate_type in RATE_TYPES:
+            rate_type_name = RATE_TYPES[rate_type]
+        else:
+            rate_type_name = "All Rate Types"
 
         today_rates: List[Tuple[RawExchangeRate, Currency]] = (
             self._dashboard_repo.get_by_created_date_with_filters(
@@ -100,7 +100,7 @@ class DashboardService:
         processed_rates = []
 
         for rate, currency_info in today_rates:
-            rates: List[DashboardRateDTO] = []
+            rates: List[Dict[str, float]] = []
 
             rate_mappings = {
                 "tt": [
@@ -125,14 +125,16 @@ class DashboardService:
                 ],
             }
 
-            if rate_type and rate_type in rate_mappings:
+            if rate_type and (rate_type in rate_mappings):
                 for rate_name, rate_value in rate_mappings[rate_type]:
                     if rate_value is not None:
-                        rates.append(DashboardRateDTO(type=rate_name, value=rate_value))
+                        rates.append({"type": rate_name, "value": rate_value})
             else:
-                for rate_name, rate_value in rate_mappings["tt"]:
-                    if rate_value is not None:
-                        rates.append(DashboardRateDTO(type=rate_name, value=rate_value))
+                # return all if rate type is null
+                for rt_category in rate_mappings.values():
+                    for rate_name, rate_value in rt_category:
+                        if rate_value is not None:
+                            rates.append({"type": rate_name, "value": rate_value})
 
             if len(rates) > 0:
                 processed_rates.append(
@@ -143,7 +145,7 @@ class DashboardService:
                         currency=CurrencyBasicDTO.model_validate(
                             currency_info, from_attributes=True
                         ),
-                        rates=rates,
+                        rates=DashboardRateDTO(name=rate_type_name, values=rates),
                         tag=rate.tag,
                         created_date=rate.created_date,
                     )
