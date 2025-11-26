@@ -25,6 +25,7 @@
 <div class="p-3 sm:p-4 lg:px-10 mt-1" x-data="ratesFilterComponent()"
   x-init="
     triggerUpdate();
+    $watch('searchValue', () => handleSearchInput());
     $watch('bankSelected', () => triggerUpdate());
     $watch('currencySelected', () => triggerUpdate());
     $watch('rateTypeSelected', () => triggerUpdate());
@@ -45,24 +46,21 @@
             <circle cx="11" cy="11" r="8"></circle>
           </svg>
           <input id="search-input"
-            @input.debounce.500ms="handleSearchInput($event)" data-slot="input"
+            x-model.debounce.500ms="searchValue" data-slot="input"
             class="file:text-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 flex w-full min-w-0 border px-3 py-1 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive pl-12 h-10 sm:h-11 bg-slate-900/50 border-cyan-700/30 text-white placeholder:text-slate-500 focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 rounded-xl"
             placeholder="Search by currency name or code..." />
         </div>
       </div>
       <div class="md:w-3/12 lg:w-2/12">
-        {{ dropdown(xModel='bankSelected', options=data.banks,
-        eventName='bank-update', emptyLabel='All Banks',
+        {{ dropdown(xModel='bankSelected', options=data.banks, emptyLabel='All Banks',
         resetEvent='reset-filters') }}
       </div>
       <div class="w-full sm:w-6/12 md:w-3/12 lg:w-2/12">
-        {{ dropdown(xModel='currencySelected', options=data.currencies,
-        eventName='currency-update', emptyLabel='All Currencies',
+        {{ dropdown(xModel='currencySelected', options=data.currencies, emptyLabel='All Currencies',
         resetEvent='reset-filters') }}
       </div>
       <div class="md:w-3/12 lg:w-2/12">
-        {{ dropdown(xModel='rateTypeSelected', options=data.rate_types,
-        eventName='rate-type-update', emptyLabel='All Rate Types',
+        {{ dropdown(xModel='rateTypeSelected', options=data.rate_types, emptyLabel='All Rate Types',
         resetEvent='reset-filters') }}
       </div>
       <div class="w-12/12 md:w-3/12 lg:w-1/12">

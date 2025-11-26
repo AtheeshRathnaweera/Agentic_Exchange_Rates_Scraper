@@ -19,9 +19,7 @@ window.ratesFilterComponent = function () {
         }
       }));
     },
-    handleSearchInput(e) {
-      this.searchValue = e.target.value.trim();
-
+    handleSearchInput() {
       // Only search if 2+ characters or empty (to show all)
       if (this.searchValue.length >= 2 || this.searchValue.length === 0) {
         this.triggerUpdate();
@@ -138,9 +136,6 @@ window.ratesFilterComponent = function () {
       this.currencySelected = '';
       this.bankSelected = '';
       this.rateTypeSelected = '';
-
-      // Clear the search input field
-      document.getElementById('search-input').value = '';
 
       // Reset dropdown displays by dispatching custom reset events
       window.dispatchEvent(new CustomEvent('reset-filters'));
