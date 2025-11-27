@@ -7,7 +7,7 @@ class RawExchangeRateDTO(BaseModel):
     id: Optional[int]
     bank_name: str
     country: str
-    last_updated: datetime
+    last_updated: Optional[datetime]
     source_url: Optional[str]
     currency_name: str
     currency_code: str

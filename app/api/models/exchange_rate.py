@@ -54,7 +54,7 @@ class ExchangeRate(BaseModel):
         description="Official name of the bank providing the exchange rates (standardized format).",
     )
     country: str = Field("Sri Lanka", description="Country where the bank operates.")
-    last_updated: datetime = Field(
+    last_updated: Optional[datetime] = Field(
         ...,
         description="Timestamp (in ISO 8601 format) when the exchange rates were last updated or published.",
     )

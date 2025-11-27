@@ -14,7 +14,7 @@ class RawExchangeRate(Base):
     id = Column(Integer, primary_key=True)
     bank_name = Column(String(100), nullable=False, index=True)
     country = Column(String(50), nullable=False, default="Sri Lanka")
-    last_updated = Column(TIMESTAMP, nullable=False)
+    last_updated = Column(TIMESTAMP)
     source_url = Column(String(255))
     currency_name = Column(String(50), nullable=False, index=True)
     currency_code = Column(String(10), nullable=False, index=True)
