@@ -32,6 +32,7 @@ services:
       DB_NAME: ${DB_NAME:-ai}
       WAIT_FOR_DB: "True"
       PRINT_ENV_ON_LOAD: "True"
+      API_KEY: ${API_KEY}
     networks:
       - main_net
     depends_on:

@@ -1,5 +1,6 @@
 from typing import List
 from datetime import datetime, timezone
+from sqlalchemy import Date
 
 from app.api.models.scraper_job_status import ScraperJobStatus
 from db.models.scraper_job import ScraperJob
@@ -67,3 +68,20 @@ class ScraperJobRepository(BaseRepository[ScraperJob]):
             update_data["finished_at"] = datetime.now(timezone.utc)
 
         return self.update(obj_id=status_entry.id, update_data=update_data)
+
+    def get_by_started_date(self, started_date: str) -> List[ScraperJob]:
+        """
+        Get all scraper jobs that were started on a specific date.
+
+        Args:
+            started_date (str): The date to filter records (in 'YYYY-MM-DD' format).
+
+        Returns:
+            List[ScraperJob]: List of matching ScraperJob records.
+        """
+        date_obj = datetime.strptime(started_date, "%Y-%m-%d").date()
+        return (
+            self.db.query(self.model)
+            .filter(self.model.started_at.cast(Date) == date_obj)
+            .all()
+        )

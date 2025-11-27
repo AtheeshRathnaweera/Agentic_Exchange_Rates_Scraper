@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 from agno.run.workflow import WorkflowRunOutput
 from agno.utils.pprint import pprint_run_response
@@ -32,7 +33,7 @@ class ExchangeRatesService:
         """Get the correlation ID for this service instance."""
         return self._correlation_id
 
-    async def run_scraper(self, body: bytes) -> None:
+    async def run_scraper(self) -> None:
         """
         Run the scraping workflow for exchange rates.
 
@@ -42,11 +43,6 @@ class ExchangeRatesService:
         Returns:
             GenericResponse: A generic response indicating success or error.
         """
-        logger.info(
-            "Received request body: %s Using correlation_id: %s",
-            body.decode("utf-8"),
-            self._correlation_id,
-        )
         try:
             # Update scraper job status to RUNNING
             updated_job = self._job_repo.update_status_by_correlation_id(
@@ -144,3 +140,17 @@ class ExchangeRatesService:
         new_status = ScraperJob(correlation_id=self._correlation_id, status=status)
         created_job = self._job_repo.create(new_status)
         return ScraperJobDTO.model_validate(created_job, from_attributes=True)
+
+    def check_for_existing_scraper_jobs(self) -> bool:
+        """
+        Check if there are any non-failed scraper jobs for today.
+        """
+        # get the today date in 'YYYY-MM-DD'
+        today_date = datetime.now().strftime("%Y-%m-%d")
+        scraper_jobs: List[ScraperJob] = self._job_repo.get_by_started_date(today_date)
+
+        # check for any with status other than error
+        for scraper_job in scraper_jobs:
+            if scraper_job.status != ScraperJobStatus.ERROR:
+                return True
+        return False

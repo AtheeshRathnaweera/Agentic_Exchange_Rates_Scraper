@@ -1,6 +1,6 @@
 import asyncio
 from typing import List
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Request, Depends, Security
 
 from app.api.dependencies.services import get_exchange_rates_service
 from app.api.dtos.generic_response import GenericResponse
@@ -9,14 +9,22 @@ from app.api.factories.services import get_exchange_rates_service_with_cid
 from app.api.services.exchange_rates_service import ExchangeRatesService
 from app.api.models.scraper_job_status import ScraperJobStatus
 from utils import get_logger
+from utils.security import verify_api_key
 
 logger = get_logger(__name__)
 
 
 class ExchangeRatesController:
-    router = APIRouter(prefix="/exchange-rates", tags=["Exchange Rates"])
+    router = APIRouter(
+        prefix="/exchange-rates",
+        tags=["Exchange Rates"],
+        dependencies=[Security(verify_api_key)],
+    )
 
-    @router.post("/run-scraper", response_model=GenericResponse)
+    @router.post(
+        "/run-scraper",
+        response_model=GenericResponse,
+    )
     # pylint: disable=no-self-argument
     async def run_scraper(
         request: Request,
@@ -26,8 +34,19 @@ class ExchangeRatesController:
         Endpoint to trigger the exchange rates scraping workflow.
         """
         correlation_id = service.correlation_id
-        # pylint: disable=no-member
-        body = await request.body()  # extract body before task starts
+
+        # skip the run if there is a scraper job for today and if not error status.
+        has_active_jobs = service.check_for_existing_scraper_jobs()
+        if has_active_jobs:
+            logger.info(
+                "Scraper job already exists for today. Correlation ID: %s, Status: Active/Running",
+                correlation_id,
+            )
+
+            return GenericResponse(
+                status="skipped",
+                message=f"Scraper job trigger skipped: a job for today already exists. Correlation ID: {correlation_id}",
+            )
 
         # Create separate service instance for background task
         ex_rate_service = get_exchange_rates_service_with_cid(
@@ -35,7 +54,7 @@ class ExchangeRatesController:
         )
         # Fire and forget safely
         scraper_task = asyncio.create_task(
-            ex_rate_service.run_scraper(body), name=f"scraper-{correlation_id}"
+            ex_rate_service.run_scraper(), name=f"scraper-{correlation_id}"
         )
 
         # Record job initiation in database with SCHEDULED status for tracking
