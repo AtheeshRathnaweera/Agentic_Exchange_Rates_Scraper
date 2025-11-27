@@ -1,0 +1,6 @@
+{% macro logo(container_size='w-8 h-8', icon_size='w-4 h-4') %}
+<div
+  class="{{ container_size }} bg-linear-to-br from-[#00D3F3] via-[#00D3F3]/80 to-[#00D3F3]/60 rounded-lg flex items-center justify-center shadow-lg shadow-[#00D3F3]/30 rotate-12">
+  <i class="fa-solid fa-arrow-trend-up {{ icon_size }} text-white -rotate-12"></i>
+</div>
+{% endmacro %}
